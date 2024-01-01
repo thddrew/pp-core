@@ -1,0 +1,7 @@
+import { type SchemaTypeDefinition } from "sanity";
+
+import Core from "./core";
+
+export const schema: { types: SchemaTypeDefinition[] } = {
+  types: [Core],
+};
