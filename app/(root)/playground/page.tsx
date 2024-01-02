@@ -8,10 +8,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getUsers } from "@/prisma/queries/users";
 import { getCore } from "@/sanity/queries/core";
 
 export default async function Playground() {
   const coreItems = await getCore();
+  const users = await getUsers();
 
   return (
     <section className="p-24">
@@ -28,6 +30,12 @@ export default async function Playground() {
             <TableRow key={item._id}>
               <TableCell className="font-medium">{item.title}</TableCell>
               <TableCell>{item.description}</TableCell>
+            </TableRow>
+          ))}
+          {users.map((user) => (
+            <TableRow key={user.id}>
+              <TableCell className="font-medium">{user.name}</TableCell>
+              <TableCell>{user.email}</TableCell>
             </TableRow>
           ))}
         </TableBody>
