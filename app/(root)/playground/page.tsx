@@ -33,7 +33,7 @@ export default async function Playground() {
         </TableBody>
         <TableFooter>
           <TableRow>
-            <TableCell colSpan={2}>Total</TableCell>
+            <TableCell>Total</TableCell>
             <TableCell className="text-right">{coreItems.length}</TableCell>
           </TableRow>
         </TableFooter>
