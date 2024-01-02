@@ -1,11 +1,6 @@
 import "@/app/(root)/globals.css";
-import { ThemeProvider } from "@/components/ThemeProvider";
-import { cn } from "@/lib/utils";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: "PP Core Studio",
@@ -16,11 +11,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={cn("min-h-screen bg-background font-sans antialiased", inter.variable)}>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-            {children}
-          </ThemeProvider>
-        </body>
+        <body>{children}</body>
       </html>
     </ClerkProvider>
   );

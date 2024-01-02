@@ -4,7 +4,7 @@ import { ModeToggle } from "./ModeToggle";
 import { Button } from "./ui/button";
 
 export const Header = () => (
-  <header className="flex justify-end gap-3 p-3">
+  <header className="fixed right-0 top-0 flex w-full items-center justify-end gap-3 p-3">
     <ModeToggle />
     <SignedIn>
       <UserButton afterSignOutUrl="/" />
