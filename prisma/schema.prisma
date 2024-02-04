@@ -13,7 +13,15 @@ generator client {
 
 model User {
   id        Int      @id @default(autoincrement())
+  clerkId   String   @unique
   createdAt DateTime @default(now())
-  email     String   @unique
-  name      String?
+  plaidAccountId Int?
+}
+
+model PlaidAccount {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  access_token  String
+  item_id       String
+  request_id    String
 }

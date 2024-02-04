@@ -1,38 +1,49 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { exchangePublicToken, getLinkToken } from "@/lib/plaid/server-actions";
+import { Loader2Icon } from "lucide-react";
+import { useEffect, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
 
-import { usePlaidLinkQuery } from "./usePlaidLinkQuery";
+export const OpenLinkButton = () => {
+  const [loading, setLoading] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
 
-type OpenLinkButtonProps = {
-  linkToken: string;
-};
-
-export const PlaidLinkWrapper = () => {
-  const { data } = usePlaidLinkQuery();
-
-  if (data) {
-    return <OpenLinkButton linkToken={data} />;
-  }
-
-  return "Link token is not available.";
-};
-
-export const OpenLinkButton = ({ linkToken }: OpenLinkButtonProps) => {
   const { open } = usePlaidLink({
-    onSuccess: (public_token, metadata) => {
+    onSuccess: async (public_token, metadata) => {
+      setToken(null);
       console.log("onSuccess", public_token, metadata);
+      // TODO: use the metadata to prefetch the account data
+      const response = await exchangePublicToken(public_token);
       // TODO: check for duplicate accounts
     },
-    token: linkToken,
+    token,
   });
+
+  const onGetToken = async () => {
+    setLoading(true);
+    const token = await getLinkToken();
+
+    if (token) {
+      setToken(token);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    if (token) {
+      open();
+    }
+  }, [open, token]);
 
   return (
     <Button
+      className="gap-2"
       onClick={() => {
-        open();
+        onGetToken();
       }}>
+      {loading ? <Loader2Icon className="animate-spin" /> : null}
       Link account
     </Button>
   );
