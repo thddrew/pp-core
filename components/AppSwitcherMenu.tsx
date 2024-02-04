@@ -25,7 +25,7 @@ const components: { title: string; href: string; description: string }[] = [
   },
 ];
 
-export function AppNavigationMenu() {
+export function AppSwitcherMenu() {
   return (
     <NavigationMenu>
       <NavigationMenuList>
