@@ -9,3 +9,11 @@ export const createPlaidAccount = async (data: Prisma.PlaidAccountCreateInput) =
 
   return account;
 };
+
+export const getPlaidAccountById = async (id: number) => {
+  const account = await prisma.plaidAccount.findUnique({
+    where: { id },
+  });
+
+  return account;
+};

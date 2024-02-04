@@ -16,7 +16,7 @@ export default async function Playground() {
   const users = await getUsers();
 
   return (
-    <section className="p-24">
+    <section className="w-full p-4">
       <Table>
         <TableCaption>A list of core content.</TableCaption>
         <TableHeader>
@@ -34,8 +34,8 @@ export default async function Playground() {
           ))}
           {users.map((user) => (
             <TableRow key={user.id}>
-              <TableCell className="font-medium">{user.name}</TableCell>
-              <TableCell>{user.email}</TableCell>
+              <TableCell className="font-medium">{user.clerkId}</TableCell>
+              <TableCell>{user.plaidAccountId}</TableCell>
             </TableRow>
           ))}
         </TableBody>

@@ -8,6 +8,14 @@ export const getUsers = async () => {
   return users;
 };
 
+export const getUserByClerkId = async (id: string) => {
+  const user = await prisma.user.findUnique({
+    where: { clerkId: id },
+  });
+
+  return user;
+};
+
 export const createUser = async (data: Prisma.UserCreateInput) => {
   const user = await prisma.user.create({
     data,
