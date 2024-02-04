@@ -20,7 +20,7 @@ export const getLinkToken = async () => {
       user: {
         client_user_id: userId,
       },
-      products: [Products.Auth],
+      products: [Products.Auth, Products.Transactions],
     };
 
     const response = await createPlaidClient().linkTokenCreate(request);

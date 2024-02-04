@@ -13,7 +13,6 @@ export const OpenLinkButton = () => {
   const { open } = usePlaidLink({
     onSuccess: async (public_token, metadata) => {
       setToken(null);
-      console.log("onSuccess", public_token, metadata);
       // TODO: use the metadata to prefetch the account data
       const response = await exchangePublicToken(public_token);
       // TODO: check for duplicate accounts

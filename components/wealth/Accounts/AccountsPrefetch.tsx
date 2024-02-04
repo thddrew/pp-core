@@ -3,7 +3,7 @@ import { PLAID_ACCOUNTS_KEY } from "@/lib/plaid/utils";
 import { auth } from "@clerk/nextjs";
 import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
 
-import { Accounts } from "./Accounts";
+import { Accounts } from ".";
 
 export const AccountsPrefetch = async () => {
   const client = new QueryClient();
