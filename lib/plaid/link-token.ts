@@ -1,31 +1,11 @@
 "use server";
 
 import { createPlaidAccount } from "@/prisma/queries/plaidAccount";
-import { updateUser, updateUserByClerkId } from "@/prisma/queries/users";
+import { updateUserByClerkId } from "@/prisma/queries/users";
 import { auth } from "@clerk/nextjs";
-import {
-  Configuration,
-  CountryCode,
-  LinkTokenCreateRequest,
-  PlaidApi,
-  PlaidEnvironments,
-  Products,
-} from "plaid";
+import { CountryCode, LinkTokenCreateRequest, Products } from "plaid";
 
-export const createPlaidClient = () => {
-  const configuration = new Configuration({
-    basePath: PlaidEnvironments.sandbox,
-    baseOptions: {
-      headers: {
-        "PLAID-CLIENT-ID": process.env.PLAID_CLIENT_ID,
-        "PLAID-SECRET": process.env.PLAID_SECRET_ID,
-        "Plaid-Version": "2020-09-14",
-      },
-    },
-  });
-
-  return new PlaidApi(configuration);
-};
+import { createPlaidClient } from "./plaid-client";
 
 export const getLinkToken = async () => {
   const { userId } = auth();

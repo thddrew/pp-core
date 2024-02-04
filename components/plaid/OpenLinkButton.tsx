@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { exchangePublicToken, getLinkToken } from "@/lib/plaid/server-actions";
+import { exchangePublicToken, getLinkToken } from "@/lib/plaid/link-token";
 import { Loader2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";

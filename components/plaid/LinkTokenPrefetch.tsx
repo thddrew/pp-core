@@ -1,5 +1,5 @@
 // Prefetch the link token
-import { getLinkToken } from "@/lib/plaid/server-actions";
+import { getLinkToken } from "@/lib/plaid/link-token";
 import { PLAID_LINK_TOKEN_KEY } from "@/lib/plaid/utils";
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 
