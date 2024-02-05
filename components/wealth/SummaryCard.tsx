@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 
 type SummaryCardProps = {
   title: ReactNode;
-  description: ReactNode;
+  description?: ReactNode;
   children: ReactNode;
 };
 

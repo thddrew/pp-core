@@ -1,4 +1,4 @@
-import { SideMenu } from "@/components/wealth/SideMenu";
+import { SideMenu } from "@/components/wealth/SideMenu/SideMenu";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
