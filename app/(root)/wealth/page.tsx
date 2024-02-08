@@ -1,4 +1,5 @@
 import { Accounts } from "@/components/wealth/Accounts/Accounts";
+import { Liabilities } from "@/components/wealth/Liabilities/Liabilities";
 import { Transactions } from "@/components/wealth/Transactions/Transactions";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { Loader2Icon } from "lucide-react";
@@ -14,6 +15,10 @@ export default async function Wealth() {
         <div className="h-8" />
         <Suspense fallback={<Loader2Icon className="animate-spin" />}>
           <Transactions />
+        </Suspense>
+        <div className="h-8" />
+        <Suspense fallback={<Loader2Icon className="animate-spin" />}>
+          <Liabilities />
         </Suspense>
       </SignedIn>
       <SignedOut>

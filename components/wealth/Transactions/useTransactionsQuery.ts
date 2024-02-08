@@ -6,5 +6,4 @@ export const useTransactionsQuery = (plaidAccountId: number) =>
   useQuery({
     queryKey: [PLAID_TRANSACTIONS_KEY, plaidAccountId],
     queryFn: async () => getTransactions(plaidAccountId),
-    staleTime: 1000 * 60 * 30, // 30 minutes
   });

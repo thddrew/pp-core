@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { SideMenuLink } from "./SideMenuLink";
 
 export const SideMenu = () => (
-  <nav className="h-screen p-4">
+  <nav className="p-4">
     <h2 className="text-xl font-bold">Wealth</h2>
     <div className="h-4" />
     <div className="space-y-2">
@@ -20,6 +20,10 @@ export const SideMenu = () => (
         <SideMenuLink href="/wealth/transactions">
           <HomeIcon className="mr-2 size-5" />
           Transactions
+        </SideMenuLink>
+        <SideMenuLink href="/wealth/liabilities">
+          <HomeIcon className="mr-2 size-5" />
+          Liabilities
         </SideMenuLink>
       </Suspense>
     </div>

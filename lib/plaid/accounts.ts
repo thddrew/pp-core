@@ -6,13 +6,11 @@ import { auth } from "@clerk/nextjs";
 
 import { createPlaidClient } from "./plaid-client";
 
-export const getLinkedAccountsForUser = async () => {
-  const { userId } = auth();
-
-  if (!userId) throw new Error("User ID is required");
+export const getAccountsByClerkId = async (clerkId?: string | null) => {
+  if (!clerkId) throw new Error("User ID is required");
 
   try {
-    const user = await getUserByClerkId(userId);
+    const user = await getUserByClerkId(clerkId);
 
     if (!user) throw new Error("User not found");
     if (!user.plaidAccountId) throw new Error("User does not have a Plaid account");
