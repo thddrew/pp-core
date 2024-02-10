@@ -19,7 +19,7 @@ export const SearchBadges = ({ terms, onRemove }: { terms: string[]; onRemove: (
     {terms.map((term) => (
       <Badge
         key={term}
-        className="gap-1 text-nowrap rounded-sm"
+        className="cursor-pointer gap-1 text-nowrap rounded-sm"
         onClick={() => {
           onRemove(term);
         }}>

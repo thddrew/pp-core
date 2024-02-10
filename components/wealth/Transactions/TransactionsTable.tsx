@@ -23,7 +23,7 @@ type TransactionsTableProps = {
 export const TransactionsTable = ({ plaidAccountId }: TransactionsTableProps) => {
   const tableContainer = useRef<HTMLTableElement>(null);
   const { data } = useTransactionsQuery(plaidAccountId);
-  const transations = data?.transactions ?? [];
+  const transactions = data?.transactions ?? [];
 
   const columnHelper = createColumnHelper<Transaction>();
 
@@ -65,7 +65,7 @@ export const TransactionsTable = ({ plaidAccountId }: TransactionsTableProps) =>
 
   const table = useReactTable({
     columns,
-    data: transations,
+    data: transactions,
     getCoreRowModel: getCoreRowModel<Transaction>(),
     defaultColumn: {
       minSize: 80,
