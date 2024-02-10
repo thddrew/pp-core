@@ -1,31 +1,45 @@
 "use client";
 
+import { isValid } from "date-fns";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 
-import { PushStateURL, usePushStateListener } from "./usePushStateListener";
+import { defaultTodayRange } from "./defaultDateRanges";
 
 export const useUrlState = (defaultState: Record<string, string> = {}) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [urlState, setUrlState] = useState({
-    ...defaultState,
-    ...Object.fromEntries(searchParams.entries()),
-  });
-  const callback = useCallback((url: PushStateURL) => {
-    const newParams = new URLSearchParams(String(url).split("?")[1]);
-    setUrlState(Object.fromEntries(newParams.entries()));
-  }, []);
+  const [urlState, setUrlState] = useState(() => {
+    const initialState = {
+      ...defaultState,
+      ...Object.fromEntries(searchParams.entries()),
+    };
 
-  usePushStateListener(callback);
+    if (!isValid(new Date(initialState.fromDate)) || !isValid(new Date(initialState.toDate))) {
+      initialState.fromDate = defaultTodayRange.fromDate;
+      initialState.toDate = defaultTodayRange.toDate;
+    }
+
+    return initialState;
+  });
+
+  // const pushStateCallback = useCallback((url: PushStateURL) => {
+  //   const newParams = new URLSearchParams(String(url).split("?")[1]);
+  //   setUrlState(Object.fromEntries(newParams.entries()));
+  // }, []);
+
+  // usePushStateListener(pushStateCallback);
+
+  const setUpdatedState = (nextState: Record<string, string>) => {
+    const newParams = new URLSearchParams({
+      ...urlState,
+      ...nextState,
+    });
+    history.pushState({}, "", `${pathname}?${newParams}`);
+    setUrlState({ ...urlState, ...nextState });
+  };
 
   if (typeof window === "undefined") return [defaultState, () => {}] as const;
 
-  const setParams = (nextState: Record<string, string>) => {
-    const updatedState = { ...urlState, ...nextState };
-    const newParams = new URLSearchParams(updatedState);
-    history.pushState({}, "", `${pathname}?${newParams}`);
-  };
-
-  return [urlState, setParams] as const;
+  return [urlState, setUpdatedState] as const;
 };

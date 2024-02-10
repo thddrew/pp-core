@@ -2,65 +2,26 @@
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { useUrlState } from "@/lib/useUrlState";
-import {
-  endOfDay,
-  endOfMonth,
-  endOfWeek,
-  format,
-  startOfDay,
-  startOfMonth,
-  startOfWeek,
-  subMonths,
-  subWeeks,
-} from "date-fns";
+import { defaultDateRanges } from "@/lib/defaultDateRanges";
 
-const defaultRanges = {
-  today: {
-    label: "Today",
-    from: startOfDay(new Date()),
-    to: endOfDay(new Date()),
-  },
-  thisWeek: {
-    label: "This Week",
-    from: startOfWeek(new Date()),
-    to: endOfWeek(new Date()),
-  },
-  lastWeek: {
-    label: "Last Week",
-    from: startOfWeek(subWeeks(new Date(), 1)),
-    to: endOfWeek(subWeeks(new Date(), 1)),
-  },
-  thisMonth: {
-    label: "This Month",
-    from: startOfMonth(new Date()),
-    to: endOfMonth(new Date()),
-  },
-  lastMonth: {
-    label: "Last Month",
-    from: startOfMonth(subMonths(new Date(), 1)),
-    to: endOfMonth(subMonths(new Date(), 1)),
-  },
+export type DateRange = { fromDate: string; toDate: string };
+
+type DateRangePickerProps = {
+  onChange?: (range: Partial<DateRange>) => void;
+  selected: DateRange;
 };
 
-export function DateRangePicker() {
-  const [urlState, setUrlState] = useUrlState({
-    fromDate: defaultRanges.today.from.toISOString(),
-    toDate: defaultRanges.today.to.toISOString(),
-  });
-
-  console.log(urlState);
-
+export function DateRangePicker({ onChange, selected }: DateRangePickerProps) {
   return (
     <section className="p-4">
       <div className="flex">
-        <div className="flex flex-col">
-          {Object.values(defaultRanges).map((range) => (
+        <div className="flex w-40 flex-col gap-2">
+          {Object.values(defaultDateRanges).map((range) => (
             <Button
               key={range.label}
               variant="outline"
               onClick={() => {
-                setUrlState({
+                onChange?.({
                   fromDate: range.from.toISOString(),
                   toDate: range.to.toISOString(),
                 });
@@ -70,12 +31,21 @@ export function DateRangePicker() {
           ))}
         </div>
         <Calendar
-          mode="range"
-          selected={{
-            from: new Date(urlState.fromDate),
-            to: new Date(urlState.toDate),
-          }}
           numberOfMonths={2}
+          mode="range"
+          toDate={new Date()}
+          selected={{
+            // TODO: handle dates
+            from: new Date(selected.fromDate),
+            to: new Date(selected.toDate),
+          }}
+          onSelect={(range) => {
+            console.log(range);
+            onChange?.({
+              fromDate: range?.from?.toString(),
+              toDate: range?.to?.toString(),
+            });
+          }}
         />
       </div>
     </section>

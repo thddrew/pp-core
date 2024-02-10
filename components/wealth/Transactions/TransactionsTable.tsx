@@ -1,7 +1,6 @@
 "use client";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useUrlState } from "@/lib/useUrlState";
 import {
   createColumnHelper,
   useReactTable,
@@ -23,9 +22,6 @@ type TransactionsTableProps = {
 
 export const TransactionsTable = ({ plaidAccountId }: TransactionsTableProps) => {
   const tableContainer = useRef<HTMLTableElement>(null);
-  const [urlState] = useUrlState({
-    search: "",
-  });
   const { data } = useTransactionsQuery(plaidAccountId);
   const transations = data?.transactions ?? [];
 
@@ -152,15 +148,6 @@ export const TransactionsTable = ({ plaidAccountId }: TransactionsTableProps) =>
             </TableRow>
           );
         })}
-        {/* {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))} */}
       </TableBody>
     </Table>
   );
