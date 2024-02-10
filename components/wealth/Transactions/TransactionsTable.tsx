@@ -1,18 +1,19 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useUrlState } from "@/lib/useUrlState";
 import {
-  ColumnDef,
   createColumnHelper,
   useReactTable,
   getCoreRowModel,
   flexRender,
+  Row,
+  Header,
+  Cell,
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { Transaction } from "plaid";
-import { MutableRefObject, useRef } from "react";
+import { useRef } from "react";
 
 import { useTransactionsQuery } from "./useTransactionsQuery";
 
@@ -22,13 +23,11 @@ type TransactionsTableProps = {
 
 export const TransactionsTable = ({ plaidAccountId }: TransactionsTableProps) => {
   const tableContainer = useRef<HTMLTableElement>(null);
-  const [urlState, setUrlState] = useUrlState({
+  const [urlState] = useUrlState({
     search: "",
   });
   const { data } = useTransactionsQuery(plaidAccountId);
   const transations = data?.transactions ?? [];
-
-  console.log(data);
 
   const columnHelper = createColumnHelper<Transaction>();
 
@@ -36,16 +35,21 @@ export const TransactionsTable = ({ plaidAccountId }: TransactionsTableProps) =>
     columnHelper.accessor("date", {
       cell: (row) => row.getValue(), // TODO: handle localization
       header: "Date",
+      size: 120,
     }),
     columnHelper.accessor("name", {
       cell: (row) => row.getValue(), // TODO: handle localization
       header: "Name",
+      meta: {
+        size: "auto",
+      },
     }),
     columnHelper.accessor("personal_finance_category.primary", {
       cell: (row) => {
         return <div className="capitalize">{row.getValue().replaceAll("_", " ").toLowerCase()}</div>;
       },
       header: "Category",
+      size: 180,
     }),
     columnHelper.accessor("amount", {
       cell: (row) => {
@@ -56,9 +60,10 @@ export const TransactionsTable = ({ plaidAccountId }: TransactionsTableProps) =>
           currencyDisplay: "narrowSymbol",
         }).format(row.getValue());
 
-        return <div className="text-right">{formatted}</div>;
+        return <div className="w-full text-right">{formatted}</div>;
       },
       header: () => <div className="text-right">Amount</div>,
+      size: 120,
     }),
   ];
 
@@ -66,11 +71,16 @@ export const TransactionsTable = ({ plaidAccountId }: TransactionsTableProps) =>
     columns,
     data: transations,
     getCoreRowModel: getCoreRowModel<Transaction>(),
+    defaultColumn: {
+      minSize: 80,
+    },
   });
+
+  const { rows } = table.getRowModel();
 
   const rowVirtualizer = useVirtualizer({
     count: table.getRowModel().rows.length,
-    estimateSize: () => 33, //estimate row height for accurate scrollbar dragging
+    estimateSize: () => 52, //estimate row height for accurate scrollbar dragging
     getScrollElement: () => tableContainer.current,
     //measure dynamic row height, except in firefox because it measures table border height incorrectly
     measureElement:
@@ -80,31 +90,69 @@ export const TransactionsTable = ({ plaidAccountId }: TransactionsTableProps) =>
     overscan: 5,
   });
 
+  // Default cell widths are 150px and cannot be overwritten to be auto-sizing
+  // Therefore, we must manually set auto-sizing if required
+  const getHeaderWidthStyles = (header: Header<Transaction, unknown>) => {
+    const { meta } = header.column.columnDef;
+
+    if (meta && "size" in meta) {
+      return meta.size === "auto"
+        ? { flex: 1, minWidth: header.column.columnDef.minSize }
+        : { width: header.getSize() };
+    }
+
+    return { width: header.getSize() };
+  };
+
+  const getCellWidthStyles = (cell: Cell<Transaction, unknown>) => {
+    const { meta } = cell.column.columnDef;
+
+    if (meta && "size" in meta) {
+      return meta.size === "auto"
+        ? { flex: 1, minWidth: cell.column.columnDef.minSize }
+        : { width: cell.column.getSize() };
+    }
+
+    return { width: cell.column.getSize() };
+  };
+
   return (
-    <div>
-      <Input
-        name="search"
-        placeholder="Filter transactions..."
-        defaultValue={urlState.search}
-        onChange={(e) => {
-          setUrlState({
-            search: e.target.value,
-          });
-        }}
-      />
-      <div className="h-8" />
-      <Table ref={tableContainer} rootClassName="h-[400px]">
-        <TableHeader className="sticky top-0 bg-background">
-          <TableRow>
-            {table.getFlatHeaders().map((header) => (
-              <TableHead key={header.id}>
-                {flexRender(header.column.columnDef.header, header.getContext())}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
+    <Table ref={tableContainer} rootClassName="flex-1 grid max-h-[600px] overscroll-contain">
+      <TableHeader className="sticky top-0 z-[1] grid bg-background">
+        <TableRow className="flex w-full">
+          {table.getFlatHeaders().map((header) => (
+            <TableHead key={header.id} className="flex items-center" style={getHeaderWidthStyles(header)}>
+              {flexRender(header.column.columnDef.header, header.getContext())}
+            </TableHead>
+          ))}
+        </TableRow>
+      </TableHeader>
+      <TableBody
+        className="relative grid"
+        style={{
+          height: rowVirtualizer.getTotalSize(),
+        }}>
+        {rowVirtualizer.getVirtualItems().map((vRow) => {
+          const row = rows[vRow.index] as Row<Transaction>;
+
+          return (
+            <TableRow
+              key={row.id}
+              data-index={vRow.index}
+              ref={(node) => rowVirtualizer.measureElement(node)}
+              className="absolute flex w-full"
+              style={{
+                transform: `translateY(${vRow.start}px)`, //this should always be a `style` as it changes on scroll
+              }}>
+              {row.getVisibleCells().map((cell) => (
+                <TableCell key={cell.id} className="flex" style={getCellWidthStyles(cell)}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </TableCell>
+              ))}
+            </TableRow>
+          );
+        })}
+        {/* {table.getRowModel().rows.map((row) => (
             <TableRow key={row.id}>
               {row.getVisibleCells().map((cell) => (
                 <TableCell key={cell.id}>
@@ -112,9 +160,8 @@ export const TransactionsTable = ({ plaidAccountId }: TransactionsTableProps) =>
                 </TableCell>
               ))}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          ))} */}
+      </TableBody>
+    </Table>
   );
 };

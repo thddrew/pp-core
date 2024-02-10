@@ -1,24 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+
+import { PushStateURL, usePushStateListener } from "./usePushStateListener";
 
 export const useUrlState = (defaultState: Record<string, string> = {}) => {
-  const [urlState, setUrlState] = useState(defaultState);
-
-  if (typeof window === "undefined") return [urlState, () => {}] as const;
-
-  const params = new URLSearchParams(window.location.search);
-  const mergedState = {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [urlState, setUrlState] = useState({
     ...defaultState,
-    ...Object.fromEntries(params.entries()),
-  };
+    ...Object.fromEntries(searchParams.entries()),
+  });
+  const callback = useCallback((url: PushStateURL) => {
+    const newParams = new URLSearchParams(String(url).split("?")[1]);
+    setUrlState(Object.fromEntries(newParams.entries()));
+  }, []);
 
-  const setParams: typeof setUrlState = (nextState) => {
+  usePushStateListener(callback);
+
+  if (typeof window === "undefined") return [defaultState, () => {}] as const;
+
+  const setParams = (nextState: Record<string, string>) => {
     const updatedState = { ...urlState, ...nextState };
-    setUrlState(updatedState);
     const newParams = new URLSearchParams(updatedState);
-    window.history.pushState({}, "", `${window.location.pathname}?${newParams}`);
+    history.pushState({}, "", `${pathname}?${newParams}`);
   };
 
-  return [mergedState, setParams] as const;
+  return [urlState, setParams] as const;
 };

@@ -3,9 +3,14 @@ import { PLAID_TRANSACTIONS_KEY } from "@/lib/plaid/utils";
 import { getCurrentUser } from "@/prisma/queries/users";
 import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
 
+import { TransactionsFilter } from "./TransactionsFilter";
 import { TransactionsTable } from "./TransactionsTable";
 
-export const Transactions = async () => {
+type TransactionsProps = {
+  header?: string;
+};
+
+export const Transactions = async ({ header = "Transactions" }: TransactionsProps) => {
   const queryClient = new QueryClient();
   const user = await getCurrentUser();
 
@@ -25,10 +30,12 @@ export const Transactions = async () => {
 
   return (
     <div>
-      <h2 className="text-xl font-bold">Transactions</h2>
+      <h2 className="text-xl font-bold">{header}</h2>
       <div className="h-8" />
-      <section className="flex flex-col gap-3">
+      <section className="flex flex-col">
         <HydrationBoundary state={dehydrate(queryClient)}>
+          <TransactionsFilter />
+          <div className="h-8" />
           <TransactionsTable plaidAccountId={user.plaidAccountId} />
         </HydrationBoundary>
       </section>

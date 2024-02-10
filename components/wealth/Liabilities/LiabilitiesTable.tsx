@@ -54,7 +54,7 @@ export const LiabilitiesTable = ({ plaidAccountId }: LiabilitiesTableProps) => {
   return (
     <div>
       <Select
-        defaultValue={currentLiability}
+        value={currentLiability}
         onValueChange={(value) => {
           setUrlState({
             liabilities: value,

@@ -6,7 +6,11 @@ import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query
 
 import { LiabilitiesTable } from "./LiabilitiesTable";
 
-export const Liabilities = async () => {
+type LiabilitiesProps = {
+  header?: string;
+};
+
+export const Liabilities = async ({ header = "Liabilities" }: LiabilitiesProps) => {
   const user = await getCurrentUser();
   const client = new QueryClient();
 
@@ -26,7 +30,7 @@ export const Liabilities = async () => {
 
   return (
     <div>
-      <h2 className="text-xl font-bold">Liabilities</h2>
+      <h2 className="text-xl font-bold">{header}</h2>
       <div className="h-8" />
       <section className="flex flex-col gap-3">
         <HydrationBoundary state={dehydrate(client)}>

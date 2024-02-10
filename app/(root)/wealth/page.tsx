@@ -7,18 +7,18 @@ import { Suspense } from "react";
 
 export default async function Wealth() {
   return (
-    <section className="w-full p-4">
+    <section className="h-full p-4">
       <SignedIn>
         <Suspense fallback={<Loader2Icon className="animate-spin" />}>
           <Accounts />
         </Suspense>
         <div className="h-8" />
         <Suspense fallback={<Loader2Icon className="animate-spin" />}>
-          <Transactions />
+          <Transactions header="Recent Transactions" />
         </Suspense>
         <div className="h-8" />
         <Suspense fallback={<Loader2Icon className="animate-spin" />}>
-          <Liabilities />
+          <Liabilities header="Recent Liabilities" />
         </Suspense>
       </SignedIn>
       <SignedOut>

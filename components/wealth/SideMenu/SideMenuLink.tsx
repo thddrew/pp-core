@@ -21,7 +21,9 @@ export const SideMenuLink = ({ href, children }: SideMenuLinkProps) => {
       asChild
       variant={isActive ? "secondary" : "ghost"}
       className={cn("w-full justify-start", isActive ? "" : buttonClasses)}>
-      <Link href={href}>{children}</Link>
+      <Link href={href} shallow>
+        {children}
+      </Link>
     </Button>
   );
 };
