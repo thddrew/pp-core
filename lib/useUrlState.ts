@@ -2,9 +2,10 @@
 
 import { isValid } from "date-fns";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import { defaultTodayRange } from "./defaultDateRanges";
+import { PushStateURL, usePushStateListener } from "./usePushStateListener";
 
 export const useUrlState = (defaultState: Record<string, string> = {}) => {
   const pathname = usePathname();
@@ -23,12 +24,12 @@ export const useUrlState = (defaultState: Record<string, string> = {}) => {
     return initialState;
   });
 
-  // const pushStateCallback = useCallback((url: PushStateURL) => {
-  //   const newParams = new URLSearchParams(String(url).split("?")[1]);
-  //   setUrlState(Object.fromEntries(newParams.entries()));
-  // }, []);
+  const pushStateCallback = useCallback((url: PushStateURL) => {
+    const newParams = new URLSearchParams(String(url).split("?")[1]);
+    setUrlState(Object.fromEntries(newParams.entries()));
+  }, []);
 
-  // usePushStateListener(pushStateCallback);
+  usePushStateListener(pushStateCallback);
 
   const setUpdatedState = (nextState: Record<string, string>) => {
     const newParams = new URLSearchParams({
@@ -36,7 +37,7 @@ export const useUrlState = (defaultState: Record<string, string> = {}) => {
       ...nextState,
     });
     history.pushState({}, "", `${pathname}?${newParams}`);
-    setUrlState({ ...urlState, ...nextState });
+    // setUrlState({ ...urlState, ...nextState });
   };
 
   if (typeof window === "undefined") return [defaultState, () => {}] as const;

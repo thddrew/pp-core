@@ -1,6 +1,8 @@
 "use client";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { defaultTodayRange } from "@/lib/defaultDateRanges";
+import { useUrlState } from "@/lib/useUrlState";
 import {
   createColumnHelper,
   useReactTable,
@@ -21,6 +23,11 @@ type TransactionsTableProps = {
 };
 
 export const TransactionsTable = ({ plaidAccountId }: TransactionsTableProps) => {
+  const [urlState, setUrlState] = useUrlState({
+    search: "",
+    fromDate: defaultTodayRange.fromDate,
+    toDate: defaultTodayRange.toDate,
+  });
   const tableContainer = useRef<HTMLTableElement>(null);
   const { data } = useTransactionsQuery(plaidAccountId);
   const transactions = data?.transactions ?? [];
@@ -75,7 +82,7 @@ export const TransactionsTable = ({ plaidAccountId }: TransactionsTableProps) =>
   const { rows } = table.getRowModel();
 
   const rowVirtualizer = useVirtualizer({
-    count: table.getRowModel().rows.length,
+    count: rows.length,
     estimateSize: () => 52, //estimate row height for accurate scrollbar dragging
     getScrollElement: () => tableContainer.current,
     //measure dynamic row height, except in firefox because it measures table border height incorrectly

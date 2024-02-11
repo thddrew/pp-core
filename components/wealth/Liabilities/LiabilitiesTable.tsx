@@ -20,8 +20,6 @@ export const LiabilitiesTable = ({ plaidAccountId }: LiabilitiesTableProps) => {
   });
   const { data } = useLiabilitiesQuery(plaidAccountId);
 
-  console.log(urlState);
-
   const liabilities = data?.liabilities
     ? {
         ...data.liabilities,
@@ -34,8 +32,6 @@ export const LiabilitiesTable = ({ plaidAccountId }: LiabilitiesTableProps) => {
   const currentLiability = (
     categories.includes(urlState.liabilities) ? urlState.liabilities : "all"
   ) as LiabilitiesObjectKey;
-
-  console.log(liabilities);
 
   // const columnHelper = createColumnHelper<LiabilitiesObject>();
 

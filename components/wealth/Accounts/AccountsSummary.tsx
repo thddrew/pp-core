@@ -1,17 +1,17 @@
-"use client";
+import { getAccountsByClerkId } from "@/lib/plaid/accounts";
+import { getCurrentUser } from "@/prisma/queries/users";
 
 import { OpenLinkButton } from "../LinkToken/OpenLinkButton";
 import { SummaryCard } from "../SummaryCard";
-import { useLinkedAccountsQuery } from "./useLinkedAccountsQuery";
 
-type AccountsSummaryProps = {
-  userId: string;
-};
+export const AccountsSummary = async () => {
+  const user = await getCurrentUser();
 
-export const AccountsSummary = ({ userId }: AccountsSummaryProps) => {
-  const { data } = useLinkedAccountsQuery(userId);
+  if (!user || !user.clerkId) {
+    return <div>User not found</div>;
+  }
 
-  const summaryData = data ?? { accounts: [] };
+  const summaryData = (await getAccountsByClerkId(user.clerkId)) ?? { accounts: [] };
 
   const { total, currency } = summaryData.accounts.reduce(
     (total, account) => ({

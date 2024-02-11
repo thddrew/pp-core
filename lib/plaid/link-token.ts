@@ -7,7 +7,7 @@ import { CountryCode, LinkTokenCreateRequest, Products } from "plaid";
 
 import { createPlaidClient } from "./plaid-client";
 
-export const getLinkToken = async () => {
+export const getLinkToken = async (products: Products[]) => {
   const { userId } = auth();
 
   try {
@@ -20,7 +20,7 @@ export const getLinkToken = async () => {
       user: {
         client_user_id: userId,
       },
-      products: [Products.Auth, Products.Transactions, Products.Investments, Products.Liabilities],
+      products,
     };
 
     const response = await createPlaidClient().linkTokenCreate(request);

@@ -1,8 +1,17 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { exchangePublicToken, getLinkToken } from "@/lib/plaid/link-token";
-import { Loader2Icon } from "lucide-react";
+import { DollarSignIcon, Loader2Icon, PiggyBankIcon } from "lucide-react";
+import { Products } from "plaid";
 import { useEffect, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
 
@@ -20,9 +29,9 @@ export const OpenLinkButton = () => {
     token,
   });
 
-  const onGetToken = async () => {
+  const onGetToken = async (products: Products[]) => {
     setLoading(true);
-    const token = await getLinkToken();
+    const token = await getLinkToken(products);
 
     if (token) {
       setToken(token);
@@ -37,13 +46,30 @@ export const OpenLinkButton = () => {
   }, [open, token]);
 
   return (
-    <Button
-      className="gap-2"
-      onClick={() => {
-        onGetToken();
-      }}>
-      {loading ? <Loader2Icon className="animate-spin" /> : null}
-      Link account
-    </Button>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline">Add</Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-[200px]">
+        <DropdownMenuLabel>Type of account</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          className="p-2"
+          onClick={() => {
+            onGetToken([Products.Auth]);
+          }}>
+          <PiggyBankIcon className="mr-2 size-5" />
+          <span>Bank</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="p-2"
+          onClick={() => {
+            onGetToken([Products.Investments, Products.Auth]);
+          }}>
+          <DollarSignIcon className="mr-2 size-5" />
+          <span>Investment</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
