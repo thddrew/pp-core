@@ -1,32 +1,29 @@
 "use server";
 
-import { getPlaidAccountById } from "@/prisma/queries/plaidAccount";
+import { getPlaidAccountById, getPlaidAccountsByUserId } from "@/prisma/queries/plaidAccount";
 import { getUserByClerkId } from "@/prisma/queries/users";
-import { auth } from "@clerk/nextjs";
 
 import { createPlaidClient } from "./plaid-client";
 
-export const getAccountsByClerkId = async (clerkId?: string | null) => {
-  if (!clerkId) throw new Error("User ID is required");
-
+export const getPlaidAccountsDetails = async (userId: number) => {
   try {
-    const user = await getUserByClerkId(clerkId);
+    if (!userId) throw new Error("User ID is required");
+    const plaidClient = createPlaidClient();
 
-    if (!user) throw new Error("User not found");
-    if (!user.plaidAccountId) throw new Error("User does not have a Plaid account");
+    const plaidAccounts = await getPlaidAccountsByUserId(userId);
 
-    const userPlaidAccount = await getPlaidAccountById(user.plaidAccountId);
+    const plaidAccountsDetails = await Promise.all(
+      plaidAccounts.map(async (account) => {
+        const response = await plaidClient.accountsGet({
+          access_token: account.access_token,
+        });
 
-    if (!userPlaidAccount) throw new Error("Plaid account not found");
-    if (!userPlaidAccount.access_token) throw new Error("Plaid account does not have an access token");
+        return response.data;
+      })
+    );
 
-    // Fetch the user's accounts from Plaid
-    const response = await createPlaidClient().accountsGet({
-      access_token: userPlaidAccount?.access_token,
-    });
-
-    return response.data;
+    return plaidAccountsDetails;
   } catch (err) {
-    throw new Error(err);
+    return [];
   }
 };

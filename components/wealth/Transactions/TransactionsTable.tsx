@@ -65,7 +65,7 @@ export const TransactionsTable = ({ plaidAccountId }: TransactionsTableProps) =>
 
         return <div className="w-full text-right">{formatted}</div>;
       },
-      header: () => <div className="text-right">Amount</div>,
+      header: () => <div className="w-full text-right">Amount</div>,
       size: 120,
     }),
   ];

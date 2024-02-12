@@ -17,3 +17,11 @@ export const getPlaidAccountById = async (id: number) => {
 
   return account;
 };
+
+export const getPlaidAccountsByUserId = async (userId: number) => {
+  const accounts = await prisma.plaidAccount.findMany({
+    where: { userId },
+  });
+
+  return accounts;
+};

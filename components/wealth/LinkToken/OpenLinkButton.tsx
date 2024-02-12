@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { exchangePublicToken, getLinkToken } from "@/lib/plaid/link-token";
+import { getCurrentUser } from "@/prisma/queries/users";
 import { DollarSignIcon, Loader2Icon, PiggyBankIcon } from "lucide-react";
 import { Products } from "plaid";
 import { useEffect, useState } from "react";
@@ -22,8 +23,11 @@ export const OpenLinkButton = () => {
   const { open } = usePlaidLink({
     onSuccess: async (public_token, metadata) => {
       setToken(null);
+      const user = await getCurrentUser();
+
+      if (!user) throw new Error("User not found");
       // TODO: use the metadata to prefetch the account data
-      const response = await exchangePublicToken(public_token);
+      const response = await exchangePublicToken(public_token, user.id);
       // TODO: check for duplicate accounts
     },
     token,
@@ -64,7 +68,7 @@ export const OpenLinkButton = () => {
         <DropdownMenuItem
           className="p-2"
           onClick={() => {
-            onGetToken([Products.Investments, Products.Auth]);
+            onGetToken([Products.Investments]);
           }}>
           <DollarSignIcon className="mr-2 size-5" />
           <span>Investment</span>

@@ -31,26 +31,27 @@ export const getLinkToken = async (products: Products[]) => {
   }
 };
 
-export const exchangePublicToken = async (publicToken: string) => {
-  const { userId } = auth();
-
+/**
+ * Exchange a public token for an access token to the resource and create a plaid account entity
+ */
+export const exchangePublicToken = async (publicToken: string, userId: number) => {
   try {
-    if (!userId) throw new Error("User ID is required");
-
     const response = await createPlaidClient().itemPublicTokenExchange({
       public_token: publicToken,
     });
 
-    const plaidAccount = await createPlaidAccount({
+    await createPlaidAccount({
+      userId,
       access_token: response.data.access_token,
       request_id: response.data.request_id,
       item_id: response.data.item_id,
+      type: "UNKNOWN",
     });
 
-    // Save the access token to the user's account
-    await updateUserByClerkId(userId, {
-      plaidAccountId: plaidAccount.id,
-    });
+    // // Save the access token to the user's account
+    // await updateUserByClerkId(userId, {
+    //   plaidAccountId: plaidAccount.id,
+    // });
 
     return response.data;
   } catch (err) {

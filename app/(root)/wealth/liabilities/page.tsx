@@ -1,13 +1,9 @@
-import { Liabilities } from "@/components/wealth/Liabilities/Liabilities";
-import { Loader2Icon } from "lucide-react";
-import { Suspense } from "react";
+import { LiabilitiesWrapper } from "@/components/wealth/Liabilities/Liabilities";
 
 export default async function LiabilitiesPage() {
   return (
     <section className="w-full p-4">
-      <Suspense fallback={<Loader2Icon className="animate-spin" />}>
-        <Liabilities />
-      </Suspense>
+      <LiabilitiesWrapper />
     </section>
   );
 }
