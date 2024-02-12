@@ -11,6 +11,10 @@ export const AccountsSummary = async () => {
     return <div>User not found</div>;
   }
 
+  if (!user.plaidAccountId) {
+    return <div>No account linked</div>;
+  }
+
   const summaryData = (await getAccountsByClerkId(user.clerkId)) ?? { accounts: [] };
 
   const { total, currency } = summaryData.accounts.reduce(

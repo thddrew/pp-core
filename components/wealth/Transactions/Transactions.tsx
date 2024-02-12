@@ -1,16 +1,44 @@
+import { getTransactions } from "@/lib/plaid/transactions";
+import { PLAID_TRANSACTIONS_KEY } from "@/lib/plaid/utils";
+import { getCurrentUser } from "@/prisma/queries/users";
+import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
+
 import { TransactionsFilter } from "./TransactionsFilter";
 import { TransactionsTable } from "./TransactionsTable";
 
 type TransactionsProps = {
-  plaidAccountId: number;
+  header?: string;
 };
 
-export const Transactions = ({ plaidAccountId }: TransactionsProps) => {
+export const Transactions = async ({ header = "Transactions" }: TransactionsProps) => {
+  const queryClient = new QueryClient();
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return <div>User not found</div>;
+  }
+
+  if (!user.plaidAccountId) {
+    return <div>No account linked</div>;
+  }
+
+  await queryClient.prefetchQuery({
+    queryKey: [PLAID_TRANSACTIONS_KEY, user.plaidAccountId],
+    queryFn: async () => getTransactions(user.plaidAccountId as number),
+    staleTime: 1000 * 60 * 15, // 15 minutes
+  });
+
   return (
-    <>
-      <TransactionsFilter />
+    <div>
+      <h2 className="text-xl font-bold">{header}</h2>
       <div className="h-8" />
-      <TransactionsTable plaidAccountId={plaidAccountId} />
-    </>
+      <section className="flex flex-col">
+        <HydrationBoundary state={dehydrate(queryClient)}>
+          <TransactionsFilter />
+          <div className="h-8" />
+          <TransactionsTable plaidAccountId={user.plaidAccountId} />
+        </HydrationBoundary>
+      </section>
+    </div>
   );
 };

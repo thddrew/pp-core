@@ -12,16 +12,18 @@ generator client {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  clerkId   String   @unique
-  createdAt DateTime @default(now())
+  id             Int      @id @default(autoincrement())
+  clerkId        String   @unique
+  createdAt      DateTime @default(now())
   plaidAccountId Int?
 }
 
 model PlaidAccount {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  createdAt     DateTime @default(now())
   access_token  String
   item_id       String
   request_id    String
+  type          String
 }

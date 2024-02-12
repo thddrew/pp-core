@@ -1,6 +1,5 @@
 import { getLiabilities } from "@/lib/plaid/liabilities";
 import { PLAID_LIABILITIES_KEY } from "@/lib/plaid/utils";
-import { getPlaidAccountById } from "@/prisma/queries/plaidAccount";
 import { getCurrentUser } from "@/prisma/queries/users";
 import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
 

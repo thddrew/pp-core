@@ -9,6 +9,7 @@
     "lint": "next lint",
     "storybook": "storybook dev -p 6006",
     "studio": "dotenv -e .env.local prisma studio",
+    "db:push": "dotenv -e .env.local prisma db push",
     "build-storybook": "storybook build",
     "postinstall": "prisma generate"
   },

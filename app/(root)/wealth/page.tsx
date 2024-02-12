@@ -1,6 +1,6 @@
 import { AccountsSummary } from "@/components/wealth/Accounts/AccountsSummary";
 import { Liabilities } from "@/components/wealth/Liabilities/Liabilities";
-import { TransactionsPrefetch } from "@/components/wealth/Transactions/TransactionsPrefetch";
+import { Transactions } from "@/components/wealth/Transactions/Transactions";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { Loader2Icon } from "lucide-react";
 import { Suspense } from "react";
@@ -14,7 +14,7 @@ export default async function Wealth() {
         </Suspense>
         <div className="h-8" />
         <Suspense fallback={<Loader2Icon className="animate-spin" />}>
-          <TransactionsPrefetch header="Recent Transactions" />
+          <Transactions header="Recent Transactions" />
         </Suspense>
         <div className="h-8" />
         <Suspense fallback={<Loader2Icon className="animate-spin" />}>
