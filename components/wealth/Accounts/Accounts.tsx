@@ -66,7 +66,7 @@ export const AccountsWrapper = async () => {
     await Promise.all(
       summaryData.map(
         ({ item }) =>
-          item.institution_id ? getInstitutionDetails(item.institution_id, [CountryCode.Us]) : null // TODO: handle multiple countries
+          item.institution_id ? getInstitutionDetails(item.institution_id, [CountryCode.Ca]) : null // TODO: handle multiple countries
       )
     )
   ).filter(Boolean) as Institution[]; // TODO: why does TS not now this cannot be null?

@@ -1,9 +1,8 @@
 "use server";
 
 import { createPlaidAccount } from "@/prisma/queries/plaidAccount";
-import { updateUserByClerkId } from "@/prisma/queries/users";
 import { auth } from "@clerk/nextjs";
-import { CountryCode, LinkTokenCreateRequest, Products } from "plaid";
+import { CountryCode, LinkTokenCreateRequest, PlaidError, Products } from "plaid";
 
 import { createPlaidClient } from "./plaid-client";
 
@@ -27,7 +26,9 @@ export const getLinkToken = async (products: Products[]) => {
 
     return response.data.link_token;
   } catch (err) {
-    console.log(err.response.data);
+    // @ts-ignore
+    // TODO: handle error
+    console.log(err.response.data as PlaidError);
   }
 };
 
