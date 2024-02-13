@@ -1,11 +1,11 @@
 "use server";
 
-import { getPlaidAccountById, getPlaidAccountsByUserId } from "@/prisma/queries/plaidAccount";
-import { getUserByClerkId } from "@/prisma/queries/users";
+import { getPlaidAccountsByUserId } from "@/prisma/queries/plaidAccount";
+import { cache } from "react";
 
 import { createPlaidClient } from "./plaid-client";
 
-export const getPlaidAccountsDetails = async (userId: number) => {
+export const getPlaidAccountsDetails = cache(async (userId: number) => {
   try {
     if (!userId) throw new Error("User ID is required");
     const plaidClient = createPlaidClient();
@@ -26,4 +26,4 @@ export const getPlaidAccountsDetails = async (userId: number) => {
   } catch (err) {
     return [];
   }
-};
+});

@@ -9,17 +9,11 @@ export default async function Wealth() {
   return (
     <section className="h-full p-4">
       <SignedIn>
-        <Suspense fallback={<Loader2Icon className="animate-spin" />}>
-          <AccountsWrapper />
-        </Suspense>
+        <AccountsWrapper />
         <div className="h-8" />
-        <Suspense fallback={<Loader2Icon className="animate-spin" />}>
-          <TransactionsWrapper header="Recent Transactions" />
-        </Suspense>
+        <TransactionsWrapper header="Recent Transactions" />
         <div className="h-8" />
-        <Suspense fallback={<Loader2Icon className="animate-spin" />}>
-          <LiabilitiesWrapper header="Recent Liabilities" />
-        </Suspense>
+        <LiabilitiesWrapper header="Recent Liabilities" />
       </SignedIn>
       <SignedOut>
         <p className="text-gray-400">You must be signed in to access your accounts.</p>

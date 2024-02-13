@@ -1,10 +1,15 @@
 import { getPlaidAccountsDetails } from "@/lib/plaid/accounts";
+import { getInstitutionDetails } from "@/lib/plaid/institutions";
+import { PLAID_ACCOUNTS_KEY } from "@/lib/plaid/utils";
 import { getCurrentUser } from "@/prisma/queries/users";
+import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
+import { CountryCode, Institution, InstitutionsGetByIdResponse } from "plaid";
 import { Suspense } from "react";
 
 import { OpenLinkButton } from "../LinkToken/OpenLinkButton";
 import { SummaryCard } from "../SummaryCard";
+import { AccountsTable } from "./AccountsTable";
 
 const AccountsSummary = async () => {
   const user = await getCurrentUser();
@@ -14,7 +19,6 @@ const AccountsSummary = async () => {
   }
 
   const summaryData = await getPlaidAccountsDetails(user.id);
-
   const allAccounts = summaryData.flatMap((data) => data.accounts);
 
   const { total, currency } = allAccounts.reduce(
@@ -50,15 +54,65 @@ const AccountsSummary = async () => {
   );
 };
 
-export const AccountsWrapper = async () => (
-  <>
-    <div className="flex items-center gap-3">
-      <h2 className="text-xl font-bold">Account Summary</h2>
-      <OpenLinkButton />
-    </div>
-    <div className="h-8" />
-    <Suspense fallback={<Loader2Icon className="animate-spin" />}>
-      <AccountsSummary />
-    </Suspense>
-  </>
-);
+export const AccountsWrapper = async () => {
+  const user = await getCurrentUser();
+  const client = new QueryClient();
+
+  // Should be cached for AccountsSummary
+  let summaryData = user ? await getPlaidAccountsDetails(user.id) : [];
+
+  // Institution details
+  const institutions = (
+    await Promise.all(
+      summaryData.map(
+        ({ item }) =>
+          item.institution_id ? getInstitutionDetails(item.institution_id, [CountryCode.Us]) : null // TODO: handle multiple countries
+      )
+    )
+  ).filter(Boolean) as Institution[]; // TODO: why does TS not now this cannot be null?
+
+  summaryData = summaryData.map((data) => {
+    const institution = institutions.find(
+      ({ institution_id }) => institution_id === data.item.institution_id
+    );
+
+    return {
+      ...data,
+      accounts: data.accounts.map((account) => ({
+        ...account,
+        institutionName: institution?.name,
+      })),
+      item: {
+        ...data.item,
+        institution,
+      },
+    };
+  });
+
+  if (user?.id) {
+    await client.prefetchQuery({
+      queryKey: [PLAID_ACCOUNTS_KEY, user.id],
+      queryFn: () => summaryData,
+      staleTime: 1000 * 60 * 15, // 15 minutes
+    });
+  }
+
+  return (
+    <>
+      <div className="flex items-center gap-3">
+        <h2 className="text-xl font-bold">Account Summary</h2>
+        <OpenLinkButton />
+      </div>
+      <div className="h-8" />
+      <Suspense fallback={<Loader2Icon className="animate-spin" />}>
+        <AccountsSummary />
+      </Suspense>
+      <div className="h-8" />
+      <HydrationBoundary state={dehydrate(client)}>
+        <Suspense fallback={<Loader2Icon className="animate-spin" />}>
+          {user?.id && <AccountsTable userId={user.id} institutions={institutions} />}
+        </Suspense>
+      </HydrationBoundary>
+    </>
+  );
+};
