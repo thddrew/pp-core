@@ -1,8 +1,8 @@
 import { Header } from "@/components/Header";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { SideMenu } from "@/components/wealth/SideMenu/SideMenu";
 import { cn } from "@/lib/utils";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
@@ -26,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Header />
               <div className="h-16" />
               {children}
+              <Analytics />
             </ClientProviders>
           </ThemeProvider>
         </body>
