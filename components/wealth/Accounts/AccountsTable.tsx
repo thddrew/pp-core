@@ -26,6 +26,7 @@ type AccountsTableProps = {
 export const AccountsTable = ({ userId, institutions }: AccountsTableProps) => {
   const [urlState, setUrlState] = useUrlState({
     institution: "all",
+    type: "all",
   });
   const tableContainer = useRef<HTMLTableElement>(null);
   const columnHelper = createColumnHelper<
@@ -38,6 +39,11 @@ export const AccountsTable = ({ userId, institutions }: AccountsTableProps) => {
 
   // Important to useMemo here to avoid an infinite re-render
   const allAccounts = useMemo(() => data?.flatMap((account) => account.accounts) ?? [], [data]);
+
+  const allSubtypes = useMemo(
+    () => Array.from(new Set(allAccounts.map((account) => account.subtype))),
+    [allAccounts]
+  );
 
   console.log(data);
 
@@ -127,27 +133,52 @@ export const AccountsTable = ({ userId, institutions }: AccountsTableProps) => {
 
   return (
     <>
-      <div className="max-w-[200px]">
-        <Select value={urlState.institution}>
-          <SelectTrigger>
-            <SelectValue defaultValue="all" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            {institutions.map((institution) =>
-              institution ? (
-                <SelectItem key={institution.institution_id} value={institution.institution_id}>
-                  {institution.name}
-                </SelectItem>
-              ) : null
-            )}
-          </SelectContent>
-        </Select>
+      <div className="flex items-center gap-3">
+        <div className="w-full max-w-[200px]">
+          <span className="text-sm">Institution</span>
+          <div className="h-1" />
+          <Select value={urlState.institution}>
+            <SelectTrigger>
+              <SelectValue defaultValue="all" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              {institutions.map((institution) =>
+                institution ? (
+                  <SelectItem key={institution.institution_id} value={institution.institution_id}>
+                    {institution.name}
+                  </SelectItem>
+                ) : null
+              )}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="w-full max-w-[200px]">
+          <span className="text-sm">Type</span>
+          <div className="h-1" />
+          <Select value={urlState.type}>
+            <SelectTrigger>
+              <SelectValue defaultValue="all" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              {allSubtypes.map((subtype) =>
+                subtype ? (
+                  <SelectItem key={subtype} value={subtype}>
+                    <span className="capitalize">{subtype}</span>
+                  </SelectItem>
+                ) : null
+              )}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
-      <div className="h-4" />
-      <Table ref={tableContainer} rootClassName="flex-1 grid max-h-[600px] overscroll-contain">
-        <TableHeader className="sticky top-0 z-[1] grid bg-background">
-          <TableRow className="flex w-full">
+      <div className="h-8" />
+      <Table
+        ref={tableContainer}
+        rootClassName="flex-1 grid max-h-[600px] overscroll-contain border rounded-md">
+        <TableHeader className="sticky top-0 z-[1] grid">
+          <TableRow className="flex w-full bg-muted hover:bg-muted">
             {table.getFlatHeaders().map((header) => (
               <TableHead key={header.id} className="flex items-center" style={getHeaderWidthStyles(header)}>
                 {flexRender(header.column.columnDef.header, header.getContext())}

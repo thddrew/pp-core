@@ -1,3 +1,4 @@
+import { Separator } from "@/components/ui/separator";
 import { getPlaidAccountsDetails } from "@/lib/plaid/accounts";
 import { getInstitutionDetails } from "@/lib/plaid/institutions";
 import { PLAID_ACCOUNTS_KEY } from "@/lib/plaid/utils";
@@ -11,7 +12,16 @@ import { OpenLinkButton } from "../LinkToken/OpenLinkButton";
 import { SummaryCard } from "../SummaryCard";
 import { AccountsTable } from "./AccountsTable";
 
-const AccountsSummary = async () => {
+export const AccountsHeader = async () => {
+  return (
+    <div className="flex items-center gap-3">
+      <h2 className="text-xl font-bold">Account Summary</h2>
+      <OpenLinkButton />
+    </div>
+  );
+};
+
+export const AccountsSummary = async () => {
   const user = await getCurrentUser();
 
   if (!user || !user.clerkId) {
@@ -99,20 +109,17 @@ export const AccountsWrapper = async () => {
 
   return (
     <>
-      <div className="flex items-center gap-3">
-        <h2 className="text-xl font-bold">Account Summary</h2>
-        <OpenLinkButton />
-      </div>
+      <AccountsHeader />
       <div className="h-8" />
       <Suspense fallback={<Loader2Icon className="animate-spin" />}>
         <AccountsSummary />
       </Suspense>
-      <div className="h-8" />
-      <HydrationBoundary state={dehydrate(client)}>
-        <Suspense fallback={<Loader2Icon className="animate-spin" />}>
+      <div className="h-16" />
+      <Suspense fallback={<Loader2Icon className="animate-spin" />}>
+        <HydrationBoundary state={dehydrate(client)}>
           {user?.id && <AccountsTable userId={user.id} institutions={institutions} />}
-        </Suspense>
-      </HydrationBoundary>
+        </HydrationBoundary>
+      </Suspense>
     </>
   );
 };

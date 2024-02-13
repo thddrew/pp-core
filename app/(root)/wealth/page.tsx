@@ -1,4 +1,4 @@
-import { AccountsWrapper } from "@/components/wealth/Accounts/Accounts";
+import { AccountsHeader, AccountsSummary, AccountsWrapper } from "@/components/wealth/Accounts/Accounts";
 import { LiabilitiesWrapper } from "@/components/wealth/Liabilities/Liabilities";
 import { TransactionsWrapper } from "@/components/wealth/Transactions/Transactions";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
@@ -9,7 +9,11 @@ export default async function Wealth() {
   return (
     <section className="h-full p-4">
       <SignedIn>
-        <AccountsWrapper />
+        <AccountsHeader />
+        <div className="h-8" />
+        <Suspense fallback={<Loader2Icon className="animate-spin" />}>
+          <AccountsSummary />
+        </Suspense>
         <div className="h-8" />
         <TransactionsWrapper header="Recent Transactions" />
         <div className="h-8" />
