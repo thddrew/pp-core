@@ -137,7 +137,11 @@ export const AccountsTable = ({ userId, institutions }: AccountsTableProps) => {
         <div className="w-full max-w-[200px]">
           <span className="text-sm">Institution</span>
           <div className="h-1" />
-          <Select value={urlState.institution}>
+          <Select
+            value={urlState.institution}
+            onValueChange={(institution) => {
+              setUrlState({ ...urlState, institution });
+            }}>
             <SelectTrigger>
               <SelectValue defaultValue="all" />
             </SelectTrigger>
@@ -156,7 +160,11 @@ export const AccountsTable = ({ userId, institutions }: AccountsTableProps) => {
         <div className="w-full max-w-[200px]">
           <span className="text-sm">Type</span>
           <div className="h-1" />
-          <Select value={urlState.type}>
+          <Select
+            value={urlState.type}
+            onValueChange={(type) => {
+              setUrlState({ ...urlState, type });
+            }}>
             <SelectTrigger>
               <SelectValue defaultValue="all" />
             </SelectTrigger>
