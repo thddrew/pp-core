@@ -47,8 +47,8 @@ export function AppSwitcherMenu() {
 }
 
 const ListItem = React.forwardRef<React.ElementRef<"a">, React.ComponentPropsWithoutRef<"a">>(
-  ({ className, title, children, ...props }, ref) => {
-    return (
+  ({ className, title, children, href, ...props }, ref) => {
+    return href ? (
       <li>
         <NavigationMenuLink asChild>
           <Link
@@ -57,13 +57,14 @@ const ListItem = React.forwardRef<React.ElementRef<"a">, React.ComponentPropsWit
               "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
               className
             )}
+            href={href}
             {...props}>
             <div className="text-sm font-medium leading-none">{title}</div>
             <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">{children}</p>
           </Link>
         </NavigationMenuLink>
       </li>
-    );
+    ) : null;
   }
 );
 ListItem.displayName = "ListItem";
