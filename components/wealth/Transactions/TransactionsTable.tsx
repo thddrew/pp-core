@@ -2,6 +2,7 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { defaultTodayRange } from "@/lib/defaultDateRanges";
+import { SearchParams } from "@/lib/types/SearchParams";
 import { useUrlState } from "@/lib/useUrlState";
 import {
   createColumnHelper,
@@ -14,23 +15,27 @@ import {
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { Transaction } from "plaid";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 
 import { useTransactionsQuery } from "./useTransactionsQuery";
 
 type TransactionsTableProps = {
-  plaidAccountId: number;
+  userId: number;
+  searchParams?: SearchParams;
 };
 
-export const TransactionsTable = ({ plaidAccountId }: TransactionsTableProps) => {
-  const [urlState, setUrlState] = useUrlState({
-    search: "",
-    fromDate: defaultTodayRange.fromDate,
-    toDate: defaultTodayRange.toDate,
-  });
+export const TransactionsTable = ({ userId, searchParams }: TransactionsTableProps) => {
+  const [urlState, setUrlState] = useUrlState(searchParams);
   const tableContainer = useRef<HTMLTableElement>(null);
-  const { data } = useTransactionsQuery(plaidAccountId);
-  const transactions = data?.transactions ?? [];
+  const { data } = useTransactionsQuery(userId);
+  console.log(data);
+  const transactions = useMemo(
+    () =>
+      data
+        ?.flatMap((account) => account.transactions)
+        .sort((a, b) => new Date(a.date).getDate() - new Date(b.date).getDate()) ?? [],
+    [data]
+  );
 
   const columnHelper = createColumnHelper<Transaction>();
 

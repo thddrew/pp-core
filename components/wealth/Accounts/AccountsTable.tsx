@@ -91,7 +91,7 @@ export const AccountsTable = ({ userId, institutions }: AccountsTableProps) => {
     },
   });
 
-  const { rows } = table.getRowModel();
+  const { rows } = table.getFilteredRowModel();
 
   const rowVirtualizer = useVirtualizer({
     count: rows.length,

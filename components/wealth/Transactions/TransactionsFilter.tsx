@@ -4,6 +4,7 @@ import { DateRangePickerButton } from "@/components/DateRangePickerInput";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { defaultTodayRange } from "@/lib/defaultDateRanges";
+import { SearchParams } from "@/lib/types/SearchParams";
 import { useUrlState } from "@/lib/useUrlState";
 import { X } from "lucide-react";
 import { useState } from "react";
@@ -24,13 +25,9 @@ export const SearchBadges = ({ terms, onRemove }: { terms: string[]; onRemove: (
   </div>
 );
 
-export const TransactionsFilter = () => {
-  const [urlState, setUrlState] = useUrlState({
-    search: "",
-    fromDate: defaultTodayRange.fromDate,
-    toDate: defaultTodayRange.toDate,
-  });
-  const [searchTerms, setSearchTerms] = useState(new Set(urlState.search.split(";").filter(Boolean)));
+export const TransactionsFilter = ({ searchParams }: { searchParams?: SearchParams }) => {
+  const [urlState, setUrlState] = useUrlState(searchParams);
+  const [searchTerms, setSearchTerms] = useState(new Set(searchParams?.search?.split(";").filter(Boolean)));
 
   return (
     <>
