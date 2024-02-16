@@ -15,9 +15,7 @@ type LiabilitiesTableProps = {
 type LiabilitiesObjectKey = keyof LiabilitiesObject | "all";
 
 export const LiabilitiesTable = ({ plaidAccountId }: LiabilitiesTableProps) => {
-  const [urlState, setUrlState] = useUrlState({
-    liabilities: "all",
-  });
+  const [urlState, setUrlState] = useUrlState();
   const { data } = useLiabilitiesQuery(plaidAccountId);
 
   const liabilities = data?.liabilities

@@ -182,9 +182,7 @@ export const AccountsTable = ({ userId, institutions }: AccountsTableProps) => {
         </div>
       </div>
       <div className="h-8" />
-      <Table
-        ref={tableContainer}
-        rootClassName="flex-1 grid max-h-[600px] overscroll-contain border rounded-md">
+      <Table ref={tableContainer} rootClassName="flex-1 grid max-h-[600px] overscroll-contain rounded-md">
         <TableHeader className="sticky top-0 z-[1] grid">
           <TableRow className="flex w-full bg-muted hover:bg-muted">
             {table.getFlatHeaders().map((header) => (

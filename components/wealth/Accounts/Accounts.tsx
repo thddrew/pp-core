@@ -12,6 +12,7 @@ import { OpenLinkButton } from "../LinkToken/OpenLinkButton";
 import { SummaryCard } from "../SummaryCard";
 import { AccountsTable } from "./AccountsTable";
 
+// TODO: add searchParams
 export const AccountsHeader = async () => {
   return (
     <div className="flex items-center gap-3">
@@ -66,7 +67,7 @@ export const AccountsSummary = async () => {
 
 export const AccountsWrapper = async () => {
   const user = await getCurrentUser();
-  const client = new QueryClient();
+  const queryClient = new QueryClient();
 
   // Should be cached for AccountsSummary
   let summaryData = user ? await getPlaidAccountsDetails(user.id) : [];
@@ -100,11 +101,7 @@ export const AccountsWrapper = async () => {
   });
 
   if (user?.id) {
-    await client.prefetchQuery({
-      queryKey: [PLAID_ACCOUNTS_KEY, user.id],
-      queryFn: () => summaryData,
-      staleTime: 1000 * 60 * 15, // 15 minutes
-    });
+    queryClient.setQueryData([PLAID_ACCOUNTS_KEY, user.id], summaryData);
   }
 
   return (
@@ -116,7 +113,7 @@ export const AccountsWrapper = async () => {
       </Suspense>
       <div className="h-16" />
       <Suspense fallback={<Loader2Icon className="animate-spin" />}>
-        <HydrationBoundary state={dehydrate(client)}>
+        <HydrationBoundary state={dehydrate(queryClient)}>
           {user?.id && <AccountsTable userId={user.id} institutions={institutions} />}
         </HydrationBoundary>
       </Suspense>

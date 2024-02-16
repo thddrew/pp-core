@@ -22,7 +22,6 @@ const Liabilities = async () => {
   await client.prefetchQuery({
     queryKey: [PLAID_LIABILITIES_KEY, user.plaidAccountId],
     queryFn: async () => getLiabilities(user.plaidAccountId as number),
-    staleTime: 1000 * 60 * 15, // 15 minutes
   });
 
   return (

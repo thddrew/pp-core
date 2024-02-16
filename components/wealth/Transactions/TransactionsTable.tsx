@@ -1,7 +1,6 @@
 "use client";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { defaultTodayRange } from "@/lib/defaultDateRanges";
 import { SearchParams } from "@/lib/types/SearchParams";
 import { useUrlState } from "@/lib/useUrlState";
 import {
@@ -14,7 +13,7 @@ import {
   Cell,
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { Transaction } from "plaid";
+import { Transaction, TransactionsGetResponse } from "plaid";
 import { useMemo, useRef } from "react";
 
 import { useTransactionsQuery } from "./useTransactionsQuery";
@@ -22,19 +21,19 @@ import { useTransactionsQuery } from "./useTransactionsQuery";
 type TransactionsTableProps = {
   userId: number;
   searchParams?: SearchParams;
+  transactions?: TransactionsGetResponse[];
 };
 
-export const TransactionsTable = ({ userId, searchParams }: TransactionsTableProps) => {
+export const TransactionsTable = ({ userId, searchParams, transactions }: TransactionsTableProps) => {
   const [urlState, setUrlState] = useUrlState(searchParams);
   const tableContainer = useRef<HTMLTableElement>(null);
-  const { data } = useTransactionsQuery(userId);
-  console.log(data);
-  const transactions = useMemo(
+  // const { data } = useTransactionsQuery(userId, urlState.fromDate, urlState.toDate);
+  const flatTransactions = useMemo(
     () =>
-      data
+      transactions
         ?.flatMap((account) => account.transactions)
         .sort((a, b) => new Date(a.date).getDate() - new Date(b.date).getDate()) ?? [],
-    [data]
+    [transactions]
   );
 
   const columnHelper = createColumnHelper<Transaction>();
@@ -77,7 +76,7 @@ export const TransactionsTable = ({ userId, searchParams }: TransactionsTablePro
 
   const table = useReactTable({
     columns,
-    data: transactions,
+    data: flatTransactions,
     getCoreRowModel: getCoreRowModel<Transaction>(),
     defaultColumn: {
       minSize: 80,
@@ -125,9 +124,9 @@ export const TransactionsTable = ({ userId, searchParams }: TransactionsTablePro
   };
 
   return (
-    <Table ref={tableContainer} rootClassName="flex-1 grid max-h-[600px] overscroll-contain">
+    <Table ref={tableContainer} rootClassName="flex-1 grid overscroll-contain rounded-md">
       <TableHeader className="sticky top-0 z-[1] grid bg-background">
-        <TableRow className="flex w-full">
+        <TableRow className="flex w-full bg-muted hover:bg-muted">
           {table.getFlatHeaders().map((header) => (
             <TableHead key={header.id} className="flex items-center" style={getHeaderWidthStyles(header)}>
               {flexRender(header.column.columnDef.header, header.getContext())}

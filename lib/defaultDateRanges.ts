@@ -5,6 +5,7 @@ import {
   startOfDay,
   startOfMonth,
   startOfWeek,
+  subDays,
   subMonths,
   subWeeks,
 } from "date-fns";
@@ -34,6 +35,11 @@ export const defaultDateRanges = {
     label: "Last Month",
     from: startOfMonth(subMonths(new Date(), 1)),
     to: endOfMonth(subMonths(new Date(), 1)),
+  },
+  last30Days: {
+    label: "Last 30 Days",
+    from: startOfDay(subDays(new Date(), 30)),
+    to: endOfDay(new Date()),
   },
 };
 

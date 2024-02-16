@@ -40,10 +40,9 @@ export function DateRangePicker({ onChange, selected }: DateRangePickerProps) {
             to: new Date(selected.toDate),
           }}
           onSelect={(range) => {
-            console.log(range);
             onChange?.({
-              fromDate: range?.from?.toString(),
-              toDate: range?.to?.toString(),
+              fromDate: range?.from?.toISOString(),
+              toDate: range?.to?.toISOString() ?? range?.from?.toISOString(),
             });
           }}
         />
