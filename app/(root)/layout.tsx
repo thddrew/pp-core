@@ -1,6 +1,7 @@
 import { Header } from "@/components/Header";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { cn } from "@/lib/utils";
+import { HydrationOverlay } from "@builder.io/react-hydration-overlay";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
@@ -25,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <ClientProviders>
               <Header />
               <div className="h-16" />
-              {children}
+              <HydrationOverlay>{children}</HydrationOverlay>
               <Analytics />
             </ClientProviders>
           </ThemeProvider>
