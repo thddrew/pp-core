@@ -24,9 +24,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <body className={cn("bg-background font-sans antialiased", inter.variable)}>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
             <ClientProviders>
-              <Header />
-              <div className="h-16" />
-              <HydrationOverlay>{children}</HydrationOverlay>
+              <HydrationOverlay>
+                <main>
+                  <Header />
+                  <div className="h-16" />
+                  {children}
+                </main>
+              </HydrationOverlay>
               <Analytics />
             </ClientProviders>
           </ThemeProvider>

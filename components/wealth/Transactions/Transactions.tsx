@@ -1,7 +1,7 @@
+import { getInitialSearchParams } from "@/lib/getInitialSearchParams";
 import { getInstitutionDetails } from "@/lib/plaid/institutions";
 import { getAllTransactionsForUser } from "@/lib/plaid/transactions";
 import { PLAID_TRANSACTIONS_KEY } from "@/lib/plaid/utils";
-import { SearchParams } from "@/lib/types/SearchParams";
 import { getCurrentUser } from "@/prisma/queries/users";
 import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
@@ -11,7 +11,7 @@ import { Suspense } from "react";
 import { TransactionsFilter } from "./TransactionsFilter";
 import { TransactionsTable } from "./TransactionsTable";
 
-const Transactions = async ({ searchParams }: { searchParams?: SearchParams }) => {
+const Transactions = async ({ searchParams }: { searchParams?: Record<string, string> }) => {
   const queryClient = new QueryClient();
   const user = await getCurrentUser();
 
@@ -19,23 +19,28 @@ const Transactions = async ({ searchParams }: { searchParams?: SearchParams }) =
     return <div className="text-gray-400">User not found</div>;
   }
 
+  const initialSearchParams = getInitialSearchParams(searchParams);
+
   const allTransactions = await getAllTransactionsForUser(
     user.id,
-    searchParams?.fromDate,
-    searchParams?.toDate
+    initialSearchParams?.fromDate,
+    initialSearchParams?.toDate
   );
 
   let filteredTransactions = allTransactions;
   // TODO: make filters reusable and composable?
-  if (searchParams?.institution !== "all") {
+  if (!initialSearchParams?.institutions?.includes("all")) {
     filteredTransactions = allTransactions.filter(
-      (transaction) => transaction.item.institution_id === searchParams?.institution
+      (transaction) =>
+        initialSearchParams.institutions?.includes(transaction.item.institution_id ?? "") ?? false
     );
   }
 
+  const allAccounts = filteredTransactions.flatMap((transaction) => transaction.accounts);
+
   const institutions = (
     await Promise.all(
-      filteredTransactions.map(
+      allTransactions.map(
         ({ item }) =>
           item.institution_id ? getInstitutionDetails(item.institution_id, [CountryCode.Ca]) : null // TODO: handle multiple countries
       )
@@ -52,6 +57,7 @@ const Transactions = async ({ searchParams }: { searchParams?: SearchParams }) =
       <TransactionsFilter
         userId={user.id}
         searchParams={searchParams}
+        accounts={allAccounts}
         institutions={institutions}
         transactions={filteredTransactions}
       />
@@ -63,7 +69,7 @@ const Transactions = async ({ searchParams }: { searchParams?: SearchParams }) =
 
 type TransactionsWrapperProps = {
   header?: string;
-  searchParams?: SearchParams;
+  searchParams?: Record<string, string>;
 };
 
 export const TransactionsWrapper = async ({

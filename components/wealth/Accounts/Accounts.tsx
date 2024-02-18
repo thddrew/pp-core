@@ -2,6 +2,7 @@ import { Separator } from "@/components/ui/separator";
 import { getPlaidAccountsDetails } from "@/lib/plaid/accounts";
 import { getInstitutionDetails } from "@/lib/plaid/institutions";
 import { PLAID_ACCOUNTS_KEY } from "@/lib/plaid/utils";
+import { SearchParams } from "@/lib/types/SearchParams";
 import { getCurrentUser } from "@/prisma/queries/users";
 import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
@@ -65,24 +66,24 @@ export const AccountsSummary = async () => {
   );
 };
 
-export const AccountsWrapper = async () => {
+export const AccountsWrapper = async ({ searchParams }: { searchParams?: Record<string, string> }) => {
   const user = await getCurrentUser();
   const queryClient = new QueryClient();
 
   // Should be cached for AccountsSummary
-  let summaryData = user ? await getPlaidAccountsDetails(user.id) : [];
+  let accounts = user ? await getPlaidAccountsDetails(user.id) : [];
 
   // Institution details
   const institutions = (
     await Promise.all(
-      summaryData.map(
+      accounts.map(
         ({ item }) =>
           item.institution_id ? getInstitutionDetails(item.institution_id, [CountryCode.Ca]) : null // TODO: handle multiple countries
       )
     )
   ).filter(Boolean) as Institution[]; // TODO: why does TS not now this cannot be null?
 
-  summaryData = summaryData.map((data) => {
+  accounts = accounts.map((data) => {
     const institution = institutions.find(
       ({ institution_id }) => institution_id === data.item.institution_id
     );
@@ -101,7 +102,7 @@ export const AccountsWrapper = async () => {
   });
 
   if (user?.id) {
-    queryClient.setQueryData([PLAID_ACCOUNTS_KEY, user.id], summaryData);
+    queryClient.setQueryData([PLAID_ACCOUNTS_KEY, user.id], accounts);
   }
 
   return (
@@ -114,7 +115,14 @@ export const AccountsWrapper = async () => {
       <div className="h-16" />
       <Suspense fallback={<Loader2Icon className="animate-spin" />}>
         <HydrationBoundary state={dehydrate(queryClient)}>
-          {user?.id && <AccountsTable userId={user.id} institutions={institutions} />}
+          {user?.id && (
+            <AccountsTable
+              userId={user.id}
+              institutions={institutions}
+              accounts={accounts}
+              searchParams={searchParams}
+            />
+          )}
         </HydrationBoundary>
       </Suspense>
     </>

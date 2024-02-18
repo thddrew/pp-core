@@ -1,20 +1,26 @@
 import { isValid } from "date-fns";
 
 import { defaultDateRanges } from "./defaultDateRanges";
+import { SearchParams } from "./types/SearchParams";
 
 export const getInitialSearchParams = (
-  initialState: Record<string, string> = {},
-  searchParams: Record<string, string> = {}
+  searchParams: Record<string, string> = {},
+  initialState: SearchParams = {}
 ) => {
   const urlState = {
     search: "",
     fromDate: defaultDateRanges.last30Days.from.toISOString(),
     toDate: defaultDateRanges.last30Days.to.toISOString(),
-    institution: "all",
+    institutions: ["all"],
     account: "all",
+    accountType: "all",
     ...initialState,
     ...searchParams,
   };
+
+  if (typeof searchParams.institutions === "string" && searchParams.institutions) {
+    urlState.institutions = searchParams.institutions.split(",");
+  }
 
   if (!isValid(new Date(urlState.fromDate)) || !isValid(new Date(urlState.toDate))) {
     urlState.fromDate = defaultDateRanges.last30Days.from.toISOString();

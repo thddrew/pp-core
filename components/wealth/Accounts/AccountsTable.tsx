@@ -2,6 +2,7 @@
 
 import { Select, SelectItem, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { SearchParams } from "@/lib/types/SearchParams";
 import { useUrlState } from "@/lib/useUrlState";
 import {
   createColumnHelper,
@@ -13,21 +14,22 @@ import {
   Cell,
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { AccountBase, Institution, InstitutionsGetByIdResponse } from "plaid";
+import { AccountBase, AccountsGetResponse, Institution, InstitutionsGetByIdResponse } from "plaid";
 import { useMemo, useRef } from "react";
 
+import { AccountTypeFilter } from "../common/filters/AccountTypeFilter";
+import { InstitutionsFilter } from "../common/filters/InstitutionsFilter";
 import { useAccountsQuery } from "./useAccountsQuery";
 
 type AccountsTableProps = {
+  accounts: AccountsGetResponse[];
   userId: number;
   institutions: Institution[];
+  searchParams?: Record<string, string>;
 };
 
-export const AccountsTable = ({ userId, institutions }: AccountsTableProps) => {
-  const [urlState, setUrlState] = useUrlState({
-    institution: "all",
-    type: "all",
-  });
+export const AccountsTable = ({ accounts, userId, institutions, searchParams }: AccountsTableProps) => {
+  const [urlState, setUrlState] = useUrlState(searchParams);
   const tableContainer = useRef<HTMLTableElement>(null);
   const columnHelper = createColumnHelper<
     AccountBase & {
@@ -35,17 +37,12 @@ export const AccountsTable = ({ userId, institutions }: AccountsTableProps) => {
     }
   >();
 
-  const { data } = useAccountsQuery(userId);
+  // const { data } = useAccountsQuery(userId);
 
   // Important to useMemo here to avoid an infinite re-render
-  const allAccounts = useMemo(() => data?.flatMap((account) => account.accounts) ?? [], [data]);
+  const allAccounts = useMemo(() => accounts?.flatMap((account) => account.accounts) ?? [], [accounts]);
 
-  const allSubtypes = useMemo(
-    () => Array.from(new Set(allAccounts.map((account) => account.subtype))),
-    [allAccounts]
-  );
-
-  console.log(data);
+  console.log(allAccounts);
 
   const columns = [
     columnHelper.accessor("name", {
@@ -135,50 +132,20 @@ export const AccountsTable = ({ userId, institutions }: AccountsTableProps) => {
     <>
       <div className="flex items-center gap-3">
         <div className="w-full max-w-[200px]">
-          <span className="text-sm">Institution</span>
-          <div className="h-1" />
-          <Select
+          {/* <InstitutionsFilter
+            institutions={institutions}
             value={urlState.institution}
             onValueChange={(institution) => {
               setUrlState({ ...urlState, institution });
-            }}>
-            <SelectTrigger>
-              <SelectValue defaultValue="all" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              {institutions.map((institution) =>
-                institution ? (
-                  <SelectItem key={institution.institution_id} value={institution.institution_id}>
-                    {institution.name}
-                  </SelectItem>
-                ) : null
-              )}
-            </SelectContent>
-          </Select>
+            }}
+          /> */}
         </div>
         <div className="w-full max-w-[200px]">
-          <span className="text-sm">Type</span>
-          <div className="h-1" />
-          <Select
-            value={urlState.type}
-            onValueChange={(type) => {
-              setUrlState({ ...urlState, type });
-            }}>
-            <SelectTrigger>
-              <SelectValue defaultValue="all" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              {allSubtypes.map((subtype) =>
-                subtype ? (
-                  <SelectItem key={subtype} value={subtype}>
-                    <span className="capitalize">{subtype}</span>
-                  </SelectItem>
-                ) : null
-              )}
-            </SelectContent>
-          </Select>
+          <AccountTypeFilter
+            value={urlState.accountType}
+            onValueChange={(accountType) => setUrlState({ ...urlState, accountType })}
+            accounts={allAccounts}
+          />
         </div>
       </div>
       <div className="h-8" />

@@ -2,6 +2,7 @@ export type SearchParams = {
   search?: string;
   fromDate?: string;
   toDate?: string;
-  institution?: string;
+  institutions?: string[];
   account?: string;
+  accountType?: string;
 };
