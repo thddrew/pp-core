@@ -11,8 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
 import { Institution } from "plaid";
-import { useState } from "react";
-import * as React from "react";
+import { useState, ReactNode } from "react";
 
 type Checked = DropdownMenuCheckboxItemProps["checked"];
 
@@ -52,17 +51,27 @@ export const useMultiFilter = (initialValues: string[] = []) => {
   return [values, onValueChange] as const;
 };
 
-type InstitutionsFilterProps = {
-  values: Map<string, boolean>;
-  onValueChange?: (value: string) => void;
-  institutions?: Institution[];
+// type GenericItem = Record<string, unknown>;
+
+type MultiFilterProps<Item> = {
+  label?: ReactNode;
+  values: Map<string | "all", boolean>;
+  onValueChange: (value: string | "all") => void;
+  items: Item[];
+  getKey: (item: Item) => string;
+  getLabel: (item: Item) => ReactNode;
+  includeAll?: boolean;
 };
 
-export function InstitutionMultiFilter({
+export function MultiFilter<Item>({
+  label,
   values,
   onValueChange,
-  institutions = [],
-}: InstitutionsFilterProps) {
+  items,
+  getKey,
+  getLabel,
+  includeAll = true,
+}: MultiFilterProps<Item>) {
   const displayValue = () => {
     if (values?.size === 1 && values.has("all")) {
       return "All";
@@ -76,18 +85,16 @@ export function InstitutionMultiFilter({
   };
 
   return (
-    <>
-      <span className="mb-1 text-sm text-muted-foreground">Institutions</span>
-      <div className="h-1" />
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button className="w-full" variant="outline">
-            {displayValue()}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56">
-          <DropdownMenuLabel>Institutions</DropdownMenuLabel>
-          <DropdownMenuSeparator />
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button className="w-full" variant="outline">
+          {displayValue()}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56">
+        <DropdownMenuLabel>{label}</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {includeAll && (
           <DropdownMenuCheckboxItem
             checked={values.get("all") as Checked}
             onClick={(e) => {
@@ -96,25 +103,25 @@ export function InstitutionMultiFilter({
             }}>
             All
           </DropdownMenuCheckboxItem>
-          {institutions.map((institution) => {
-            const id = institution.institution_id;
-            const name = institution.name;
-            const checked = values?.get(id) as Checked;
+        )}
+        {items.map((item) => {
+          const id = getKey(item);
+          const name = getLabel(item);
+          const checked = values?.get(id) as Checked;
 
-            return (
-              <DropdownMenuCheckboxItem
-                key={id}
-                checked={checked}
-                onClick={(e) => {
-                  e.preventDefault();
-                  onValueChange?.(id);
-                }}>
-                {name}
-              </DropdownMenuCheckboxItem>
-            );
-          })}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </>
+          return (
+            <DropdownMenuCheckboxItem
+              key={id}
+              checked={checked}
+              onClick={(e) => {
+                e.preventDefault();
+                onValueChange?.(id);
+              }}>
+              {name}
+            </DropdownMenuCheckboxItem>
+          );
+        })}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

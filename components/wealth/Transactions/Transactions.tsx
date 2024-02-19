@@ -1,17 +1,15 @@
-import { getInitialSearchParams } from "@/lib/getInitialSearchParams";
+import { InitialSearchParams } from "@/lib/getInitialSearchParams";
 import { getInstitutionDetails } from "@/lib/plaid/institutions";
 import { getAllTransactionsForUser } from "@/lib/plaid/transactions";
 import { PLAID_TRANSACTIONS_KEY } from "@/lib/plaid/utils";
 import { getCurrentUser } from "@/prisma/queries/users";
 import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
-import { Loader2Icon } from "lucide-react";
-import { CountryCode, Institution, TransactionsGetResponse } from "plaid";
-import { Suspense } from "react";
+import { CountryCode, Institution } from "plaid";
 
 import { TransactionsFilter } from "./TransactionsFilter";
 import { TransactionsTable } from "./TransactionsTable";
 
-const Transactions = async ({ searchParams }: { searchParams?: Record<string, string> }) => {
+export const Transactions = async ({ searchParams }: { searchParams: InitialSearchParams }) => {
   const queryClient = new QueryClient();
   const user = await getCurrentUser();
 
@@ -19,20 +17,17 @@ const Transactions = async ({ searchParams }: { searchParams?: Record<string, st
     return <div className="text-gray-400">User not found</div>;
   }
 
-  const initialSearchParams = getInitialSearchParams(searchParams);
-
   const allTransactions = await getAllTransactionsForUser(
     user.id,
-    initialSearchParams?.fromDate,
-    initialSearchParams?.toDate
+    searchParams?.fromDate,
+    searchParams?.toDate
   );
 
   let filteredTransactions = allTransactions;
   // TODO: make filters reusable and composable?
-  if (!initialSearchParams?.institutions?.includes("all")) {
+  if (!searchParams?.institutions?.includes("all")) {
     filteredTransactions = allTransactions.filter(
-      (transaction) =>
-        initialSearchParams.institutions?.includes(transaction.item.institution_id ?? "") ?? false
+      (transaction) => searchParams?.institutions?.includes(transaction.item.institution_id ?? "") ?? false
     );
   }
 
@@ -62,27 +57,7 @@ const Transactions = async ({ searchParams }: { searchParams?: Record<string, st
         transactions={filteredTransactions}
       />
       <div className="h-8" />
-      <TransactionsTable userId={user.id} transactions={filteredTransactions} />
+      <TransactionsTable searchParams={searchParams} userId={user.id} transactions={filteredTransactions} />
     </HydrationBoundary>
-  );
-};
-
-type TransactionsWrapperProps = {
-  header?: string;
-  searchParams?: Record<string, string>;
-};
-
-export const TransactionsWrapper = async ({
-  header = "Transactions",
-  searchParams,
-}: TransactionsWrapperProps) => {
-  return (
-    <>
-      <h2 className="text-xl font-bold">{header}</h2>
-      <div className="h-8" />
-      <Suspense fallback={<Loader2Icon className="animate-spin" />}>
-        <Transactions searchParams={searchParams} />
-      </Suspense>
-    </>
   );
 };

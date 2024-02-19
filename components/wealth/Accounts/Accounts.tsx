@@ -1,4 +1,5 @@
 import { Separator } from "@/components/ui/separator";
+import { InitialSearchParams } from "@/lib/getInitialSearchParams";
 import { getPlaidAccountsDetails } from "@/lib/plaid/accounts";
 import { getInstitutionDetails } from "@/lib/plaid/institutions";
 import { PLAID_ACCOUNTS_KEY } from "@/lib/plaid/utils";
@@ -66,7 +67,7 @@ export const AccountsSummary = async () => {
   );
 };
 
-export const AccountsWrapper = async ({ searchParams }: { searchParams?: Record<string, string> }) => {
+export const AccountsWrapper = async ({ searchParams }: { searchParams: InitialSearchParams }) => {
   const user = await getCurrentUser();
   const queryClient = new QueryClient();
 

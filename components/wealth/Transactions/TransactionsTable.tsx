@@ -1,6 +1,7 @@
 "use client";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { InitialSearchParams } from "@/lib/getInitialSearchParams";
 import { SearchParams } from "@/lib/types/SearchParams";
 import { useUrlState } from "@/lib/useUrlState";
 import {
@@ -20,7 +21,7 @@ import { useTransactionsQuery } from "./useTransactionsQuery";
 
 type TransactionsTableProps = {
   userId: number;
-  searchParams?: SearchParams;
+  searchParams: InitialSearchParams;
   transactions?: TransactionsGetResponse[];
 };
 
@@ -124,7 +125,7 @@ export const TransactionsTable = ({ userId, searchParams, transactions }: Transa
   };
 
   return (
-    <Table ref={tableContainer} rootClassName="flex-1 grid overscroll-contain rounded-md">
+    <Table ref={tableContainer} rootClassName="flex-1 grid rounded-md max-h-[1000px]">
       <TableHeader className="sticky top-0 z-[1] grid bg-background">
         <TableRow className="flex w-full bg-muted hover:bg-muted">
           {table.getFlatHeaders().map((header) => (

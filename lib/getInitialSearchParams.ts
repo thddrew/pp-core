@@ -3,6 +3,8 @@ import { isValid } from "date-fns";
 import { defaultDateRanges } from "./defaultDateRanges";
 import { SearchParams } from "./types/SearchParams";
 
+export type InitialSearchParams = ReturnType<typeof getInitialSearchParams>;
+
 export const getInitialSearchParams = (
   searchParams: Record<string, string> = {},
   initialState: SearchParams = {}

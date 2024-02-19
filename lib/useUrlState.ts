@@ -3,15 +3,20 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { getInitialSearchParams } from "./getInitialSearchParams";
+import { InitialSearchParams, getInitialSearchParams } from "./getInitialSearchParams";
 import { SearchParams } from "./types/SearchParams";
 
-export const useUrlState = (searchParams: Record<string, string> = {}, initialState: SearchParams = {}) => {
+export const useUrlState = (searchParams: InitialSearchParams, initialState: SearchParams = {}) => {
   const pathname = usePathname();
   const router = useRouter();
-  const [urlState, setUrlState] = useState(getInitialSearchParams(searchParams, initialState));
+  const [urlState, setUrlState] = useState({
+    ...initialState,
+    ...searchParams,
+  });
 
-  const setUpdatedState = (nextState: Record<string, string | string[]>) => {
+  const setUpdatedState = (nextState: Partial<InitialSearchParams>) => {
+    // TODO: fix this TS issue
+    // @ts-ignore
     const newParams = new URLSearchParams({
       ...urlState,
       ...nextState,

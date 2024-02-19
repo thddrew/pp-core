@@ -1,8 +1,7 @@
 "use client";
 
-import { Select, SelectItem, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { SearchParams } from "@/lib/types/SearchParams";
+import { InitialSearchParams } from "@/lib/getInitialSearchParams";
 import { useUrlState } from "@/lib/useUrlState";
 import {
   createColumnHelper,
@@ -18,14 +17,13 @@ import { AccountBase, AccountsGetResponse, Institution, InstitutionsGetByIdRespo
 import { useMemo, useRef } from "react";
 
 import { AccountTypeFilter } from "../common/filters/AccountTypeFilter";
-import { InstitutionsFilter } from "../common/filters/InstitutionsFilter";
 import { useAccountsQuery } from "./useAccountsQuery";
 
 type AccountsTableProps = {
   accounts: AccountsGetResponse[];
   userId: number;
   institutions: Institution[];
-  searchParams?: Record<string, string>;
+  searchParams: InitialSearchParams;
 };
 
 export const AccountsTable = ({ accounts, userId, institutions, searchParams }: AccountsTableProps) => {
@@ -131,15 +129,6 @@ export const AccountsTable = ({ accounts, userId, institutions, searchParams }: 
   return (
     <>
       <div className="flex items-center gap-3">
-        <div className="w-full max-w-[200px]">
-          {/* <InstitutionsFilter
-            institutions={institutions}
-            value={urlState.institution}
-            onValueChange={(institution) => {
-              setUrlState({ ...urlState, institution });
-            }}
-          /> */}
-        </div>
         <div className="w-full max-w-[200px]">
           <AccountTypeFilter
             value={urlState.accountType}

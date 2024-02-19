@@ -1,11 +1,14 @@
 import { AccountsHeader, AccountsSummary, AccountsWrapper } from "@/components/wealth/Accounts/Accounts";
 import { LiabilitiesWrapper } from "@/components/wealth/Liabilities/Liabilities";
-import { TransactionsWrapper } from "@/components/wealth/Transactions/Transactions";
+import { Transactions } from "@/components/wealth/Transactions/Transactions";
+import { getInitialSearchParams } from "@/lib/getInitialSearchParams";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { Loader2Icon } from "lucide-react";
 import { Suspense } from "react";
 
-export default async function Wealth() {
+export default async function Wealth({ searchParams }: { searchParams?: Record<string, string> }) {
+  const initialSearchParams = getInitialSearchParams(searchParams);
+
   return (
     <section className="h-full p-4">
       <SignedIn>
@@ -15,7 +18,9 @@ export default async function Wealth() {
           <AccountsSummary />
         </Suspense>
         <div className="h-8" />
-        <TransactionsWrapper header="Recent Transactions" />
+        <h2 className="text-xl font-bold">Recent Transactions</h2>
+        <div className="h-8" />
+        <Transactions searchParams={initialSearchParams} />
         <div className="h-8" />
         <LiabilitiesWrapper header="Recent Liabilities" />
       </SignedIn>

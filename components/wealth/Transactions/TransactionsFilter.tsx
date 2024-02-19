@@ -3,7 +3,7 @@
 import { DateRangePickerButton } from "@/components/DateRangePickerInput";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { SearchParams } from "@/lib/types/SearchParams";
+import { InitialSearchParams } from "@/lib/getInitialSearchParams";
 import { useUrlState } from "@/lib/useUrlState";
 import { X } from "lucide-react";
 import { AccountBase, Institution, TransactionsGetResponse } from "plaid";
@@ -11,8 +11,7 @@ import { useState } from "react";
 
 import { AccountTypeFilter } from "../common/filters/AccountTypeFilter";
 import { AccountsFilter } from "../common/filters/AccountsFilter";
-import { InstitutionMultiFilter, useMultiFilter } from "../common/filters/InstitutionMultiFilter";
-import { InstitutionsFilter } from "../common/filters/InstitutionsFilter";
+import { MultiFilter, useMultiFilter } from "../common/filters/MultiFilter";
 
 export const SearchBadges = ({ terms, onRemove }: { terms: string[]; onRemove: (term: string) => void }) => (
   <div className="space-x-1">
@@ -32,7 +31,7 @@ export const SearchBadges = ({ terms, onRemove }: { terms: string[]; onRemove: (
 
 type TransactionsFilterProps = {
   userId: number;
-  searchParams?: Record<string, string>;
+  searchParams: InitialSearchParams;
   institutions?: Institution[];
   transactions?: TransactionsGetResponse[];
   accounts?: AccountBase[];
@@ -101,9 +100,13 @@ export const TransactionsFilter = ({
           />
         </div>
         <div className="w-full max-w-[200px]">
-          <InstitutionMultiFilter
-            institutions={institutions}
+          <span className="mb-1 text-sm text-muted-foreground">Institutions</span>
+          <MultiFilter<Institution>
+            label="Institutions"
+            items={institutions ?? []}
             values={institutionFilters}
+            getKey={(item) => item.institution_id}
+            getLabel={(item) => item.name}
             onValueChange={(value) => {
               const updatedFilters = setInstitutionFilters(value);
               setUrlState({

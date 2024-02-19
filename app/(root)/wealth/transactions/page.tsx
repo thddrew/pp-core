@@ -1,12 +1,19 @@
-import { TransactionsWrapper } from "@/components/wealth/Transactions/Transactions";
+import { Transactions } from "@/components/wealth/Transactions/Transactions";
 import { getInitialSearchParams } from "@/lib/getInitialSearchParams";
 import { SearchParams } from "@/lib/types/SearchParams";
+import { Loader2Icon } from "lucide-react";
+import { Suspense } from "react";
 
-export default async function TransactionsPage({ searchParams }: { searchParams: SearchParams }) {
-  const defaultSearchParams: SearchParams = getInitialSearchParams(searchParams);
+export default async function TransactionsPage({ searchParams }: { searchParams?: Record<string, string> }) {
+  const defaultSearchParams = getInitialSearchParams(searchParams);
+
   return (
     <section className="flex h-full w-full flex-col p-4">
-      <TransactionsWrapper searchParams={defaultSearchParams} />
+      <h2 className="text-xl font-bold">Transactions</h2>
+      <div className="h-8" />
+      <Suspense fallback={<Loader2Icon className="animate-spin" />}>
+        <Transactions searchParams={defaultSearchParams} />
+      </Suspense>
     </section>
   );
 }
