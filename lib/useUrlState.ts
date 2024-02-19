@@ -6,7 +6,10 @@ import { useState } from "react";
 import { InitialSearchParams, getInitialSearchParams } from "./getInitialSearchParams";
 import { SearchParams } from "./types/SearchParams";
 
-export const useUrlState = (searchParams: InitialSearchParams, initialState: SearchParams = {}) => {
+export const useUrlState = (
+  searchParams: InitialSearchParams = getInitialSearchParams(),
+  initialState: SearchParams = {}
+) => {
   const pathname = usePathname();
   const router = useRouter();
   const [urlState, setUrlState] = useState({

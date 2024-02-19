@@ -1,32 +1,28 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Institution } from "plaid";
+import { useUrlState } from "@/lib/useUrlState";
+import { AccountBase, Institution, TransactionsGetResponse } from "plaid";
+
+import { MultiFilter, useMultiFilter } from "./MultiFilter";
 
 type InstitutionsFilterProps = {
-  value?: string | undefined;
-  onValueChange?: (value: string) => void;
-  institutions?: Institution[];
+  institutions: Institution[];
 };
 
-export const InstitutionsFilter = ({ institutions = [], value, onValueChange }: InstitutionsFilterProps) => {
+export const InstitutionsFilter = ({ institutions }: InstitutionsFilterProps) => {
+  const [urlState, setUrlState] = useUrlState();
+  const [institutionFilters, setInstitutionFilters] = useMultiFilter(urlState.institutions);
+
   return (
-    <>
-      <span className="mb-1 text-sm text-muted-foreground">Institution</span>
-      <div className="h-1" />
-      <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger>
-          <SelectValue defaultValue="all" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All</SelectItem>
-          {institutions?.map((institution) =>
-            institution ? (
-              <SelectItem key={institution.institution_id} value={institution.institution_id}>
-                {institution.name}
-              </SelectItem>
-            ) : null
-          )}
-        </SelectContent>
-      </Select>
-    </>
+    <MultiFilter<Institution>
+      items={[{ items: institutions ?? [] }]}
+      values={institutionFilters}
+      getKey={(item) => item.institution_id}
+      getLabel={(item) => item.name}
+      onValueChange={(value) => {
+        const updatedFilters = setInstitutionFilters(value);
+        setUrlState({
+          institutions: [...updatedFilters.keys()],
+        });
+      }}
+    />
   );
 };

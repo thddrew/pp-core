@@ -14,7 +14,7 @@ export const getInitialSearchParams = (
     fromDate: defaultDateRanges.last30Days.from.toISOString(),
     toDate: defaultDateRanges.last30Days.to.toISOString(),
     institutions: ["all"],
-    account: "all",
+    account: ["all"],
     accountType: "all",
     ...initialState,
     ...searchParams,
@@ -22,6 +22,10 @@ export const getInitialSearchParams = (
 
   if (typeof searchParams.institutions === "string" && searchParams.institutions) {
     urlState.institutions = searchParams.institutions.split(",");
+  }
+
+  if (typeof searchParams.account === "string" && searchParams.account) {
+    urlState.account = searchParams.account.split(",");
   }
 
   if (!isValid(new Date(urlState.fromDate)) || !isValid(new Date(urlState.toDate))) {

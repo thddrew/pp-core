@@ -3,6 +3,6 @@ export type SearchParams = {
   fromDate?: string;
   toDate?: string;
   institutions?: string[];
-  account?: string;
+  account?: string[];
   accountType?: string;
 };

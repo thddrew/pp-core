@@ -6,11 +6,9 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
-import { Institution } from "plaid";
 import { useState, ReactNode } from "react";
 
 type Checked = DropdownMenuCheckboxItemProps["checked"];
@@ -54,17 +52,15 @@ export const useMultiFilter = (initialValues: string[] = []) => {
 // type GenericItem = Record<string, unknown>;
 
 type MultiFilterProps<Item> = {
-  label?: ReactNode;
   values: Map<string | "all", boolean>;
   onValueChange: (value: string | "all") => void;
-  items: Item[];
+  items: { label?: string; items: Item[] }[];
   getKey: (item: Item) => string;
   getLabel: (item: Item) => ReactNode;
   includeAll?: boolean;
 };
 
 export function MultiFilter<Item>({
-  label,
   values,
   onValueChange,
   items,
@@ -75,10 +71,6 @@ export function MultiFilter<Item>({
   const displayValue = () => {
     if (values?.size === 1 && values.has("all")) {
       return "All";
-    }
-
-    if (values?.size === 1) {
-      return [...values.keys()][0];
     }
 
     return `${values.size} selected`;
@@ -92,8 +84,6 @@ export function MultiFilter<Item>({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
-        <DropdownMenuLabel>{label}</DropdownMenuLabel>
-        <DropdownMenuSeparator />
         {includeAll && (
           <DropdownMenuCheckboxItem
             checked={values.get("all") as Checked}
@@ -104,23 +94,28 @@ export function MultiFilter<Item>({
             All
           </DropdownMenuCheckboxItem>
         )}
-        {items.map((item) => {
-          const id = getKey(item);
-          const name = getLabel(item);
-          const checked = values?.get(id) as Checked;
+        {items.map((group) => (
+          <>
+            {group.label && <DropdownMenuLabel key={group.label}>{group.label}</DropdownMenuLabel>}
+            {group.items.map((item) => {
+              const id = getKey(item);
+              const name = getLabel(item);
+              const checked = values?.get(id) as Checked;
 
-          return (
-            <DropdownMenuCheckboxItem
-              key={id}
-              checked={checked}
-              onClick={(e) => {
-                e.preventDefault();
-                onValueChange?.(id);
-              }}>
-              {name}
-            </DropdownMenuCheckboxItem>
-          );
-        })}
+              return (
+                <DropdownMenuCheckboxItem
+                  key={id}
+                  checked={checked}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onValueChange?.(id);
+                  }}>
+                  {name}
+                </DropdownMenuCheckboxItem>
+              );
+            })}
+          </>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );

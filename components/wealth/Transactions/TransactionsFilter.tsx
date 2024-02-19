@@ -11,7 +11,7 @@ import { useState } from "react";
 
 import { AccountTypeFilter } from "../common/filters/AccountTypeFilter";
 import { AccountsFilter } from "../common/filters/AccountsFilter";
-import { MultiFilter, useMultiFilter } from "../common/filters/MultiFilter";
+import { InstitutionsFilter } from "../common/filters/InstitutionsFilter";
 
 export const SearchBadges = ({ terms, onRemove }: { terms: string[]; onRemove: (term: string) => void }) => (
   <div className="space-x-1">
@@ -46,9 +46,6 @@ export const TransactionsFilter = ({
 }: TransactionsFilterProps) => {
   const [urlState, setUrlState] = useUrlState(searchParams);
   const [searchTerms, setSearchTerms] = useState(new Set(searchParams?.search?.split(";").filter(Boolean)));
-  const [institutionFilters, setInstitutionFilters] = useMultiFilter(urlState.institutions);
-
-  // const { data } = useTransactionsQuery(userId, urlState.fromDate, urlState.toDate);
 
   return (
     <div>
@@ -83,7 +80,8 @@ export const TransactionsFilter = ({
       <div className="h-4" />
       <div className="flex items-center gap-4">
         <div>
-          <span className="mb-1 text-sm text-muted-foreground">Between</span>
+          <span className="text-sm text-muted-foreground">Between</span>
+          <div className="h-1" />
           <DateRangePickerButton
             range={{
               fromDate: urlState.fromDate,
@@ -100,30 +98,14 @@ export const TransactionsFilter = ({
           />
         </div>
         <div className="w-full max-w-[200px]">
-          <span className="mb-1 text-sm text-muted-foreground">Institutions</span>
-          <MultiFilter<Institution>
-            label="Institutions"
-            items={institutions ?? []}
-            values={institutionFilters}
-            getKey={(item) => item.institution_id}
-            getLabel={(item) => item.name}
-            onValueChange={(value) => {
-              const updatedFilters = setInstitutionFilters(value);
-              setUrlState({
-                institutions: [...updatedFilters.keys()],
-              });
-            }}
-          />
+          <span className="text-sm text-muted-foreground">Institutions</span>
+          <div className="h-1" />
+          <InstitutionsFilter institutions={institutions ?? []} />
         </div>
         <div className="w-full max-w-[200px]">
-          <AccountsFilter
-            value={urlState.account}
-            onValueChange={(account) => {
-              setUrlState({ ...urlState, account });
-            }}
-            transactions={transactions}
-            institutions={institutions}
-          />
+          <span className="text-sm text-muted-foreground">Accounts</span>
+          <div className="h-1" />
+          <AccountsFilter transactions={transactions ?? []} />
         </div>
         <div className="w-full max-w-[200px]">
           <AccountTypeFilter
