@@ -4,11 +4,12 @@ import { getPlaidAccountsDetails } from "@/lib/plaid/accounts";
 import { getInstitutionDetails } from "@/lib/plaid/institutions";
 import { PLAID_ACCOUNTS_KEY } from "@/lib/plaid/utils";
 import { SearchParams } from "@/lib/types/SearchParams";
+import { getAccountsByUserId } from "@/prisma/queries/accounts";
 import { getCurrentUser } from "@/prisma/queries/users";
 import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
-import { CountryCode, Institution, InstitutionsGetByIdResponse } from "plaid";
-import { Suspense } from "react";
+import { AccountBase, CountryCode, Institution, InstitutionsGetByIdResponse } from "plaid";
+import { Suspense, useMemo } from "react";
 
 import { OpenLinkButton } from "../LinkToken/OpenLinkButton";
 import { SummaryCard } from "../SummaryCard";
@@ -31,8 +32,9 @@ export const AccountsSummary = async () => {
     return <div className="text-gray-400">User not found</div>;
   }
 
-  const summaryData = await getPlaidAccountsDetails(user.id);
-  const allAccounts = summaryData.flatMap((data) => data.accounts);
+  const accountDetails = await getPlaidAccountsDetails(user.id);
+
+  const allAccounts = accountDetails?.flatMap((account) => account.data.accounts) ?? [];
 
   const { total, currency } = allAccounts.reduce(
     (total, account) => ({
@@ -71,36 +73,13 @@ export const AccountsWrapper = async ({ searchParams }: { searchParams: InitialS
   const user = await getCurrentUser();
   const queryClient = new QueryClient();
 
-  // Should be cached for AccountsSummary
-  let accounts = user ? await getPlaidAccountsDetails(user.id) : [];
+  const accounts = user ? await getPlaidAccountsDetails(user.id) : null;
 
-  // Institution details
-  const institutions = (
-    await Promise.all(
-      accounts.map(
-        ({ item }) =>
-          item.institution_id ? getInstitutionDetails(item.institution_id, [CountryCode.Ca]) : null // TODO: handle multiple countries
-      )
-    )
-  ).filter(Boolean) as Institution[]; // TODO: why does TS not now this cannot be null?
-
-  accounts = accounts.map((data) => {
-    const institution = institutions.find(
-      ({ institution_id }) => institution_id === data.item.institution_id
-    );
-
-    return {
-      ...data,
-      accounts: data.accounts.map((account) => ({
-        ...account,
-        institutionName: institution?.name,
-      })),
-      item: {
-        ...data.item,
-        institution,
-      },
-    };
-  });
+  let allAccounts: AccountBase[] = [];
+  if (accounts) {
+    allAccounts = accounts.flatMap((account) => account.data.accounts);
+  }
+  // const accounts = user ? await getAccountsByUserId(user.id) : null;
 
   if (user?.id) {
     queryClient.setQueryData([PLAID_ACCOUNTS_KEY, user.id], accounts);
@@ -116,14 +95,7 @@ export const AccountsWrapper = async ({ searchParams }: { searchParams: InitialS
       <div className="h-16" />
       <Suspense fallback={<Loader2Icon className="animate-spin" />}>
         <HydrationBoundary state={dehydrate(queryClient)}>
-          {user?.id && (
-            <AccountsTable
-              userId={user.id}
-              institutions={institutions}
-              accounts={accounts}
-              searchParams={searchParams}
-            />
-          )}
+          {user?.id && <AccountsTable userId={user.id} accounts={allAccounts} searchParams={searchParams} />}
         </HydrationBoundary>
       </Suspense>
     </>

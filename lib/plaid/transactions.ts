@@ -1,6 +1,6 @@
 "use server";
 
-import { getPlaidAccountsByUserId } from "@/prisma/queries/plaidAccount";
+import { getAccountsByUserId } from "@/prisma/queries/accounts";
 import { formatDate, subDays } from "date-fns";
 
 import { createPlaidClient } from "./plaid-client";
@@ -13,14 +13,18 @@ export const getAllTransactionsForUser = async (
   startDate: string = subDays(new Date(), 30).toISOString(),
   endDate: string = new Date().toISOString()
 ) => {
-  const plaidAccounts = await getPlaidAccountsByUserId(userId);
+  const accounts = await getAccountsByUserId(userId);
 
-  if (!plaidAccounts.length) throw new Error("Plaid accounts not found");
+  if (!accounts.length) {
+    // throw new Error("Plaid accounts not found")
+    return [];
+  }
 
   const plaidClient = createPlaidClient();
 
+  // TODO: get transactions from db
   const responses = await Promise.all(
-    plaidAccounts.map((account) =>
+    accounts.map((account) =>
       plaidClient.transactionsGet({
         access_token: account.access_token,
         start_date: formatDate(startDate, "yyyy-MM-dd"),
@@ -31,3 +35,5 @@ export const getAllTransactionsForUser = async (
 
   return responses.map((response) => response.data);
 };
+
+export const syncTransactionsForUser = async (userId: number) => {};

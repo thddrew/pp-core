@@ -11,6 +11,14 @@ export const getUsers = async () => {
   return users;
 };
 
+export const getUser = async (id: number) => {
+  const user = await prisma.user.findUnique({
+    where: { id },
+  });
+
+  return user;
+};
+
 export const getCurrentUser = async () => {
   const { userId } = auth();
 

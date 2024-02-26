@@ -1,33 +1,46 @@
 "use server";
 
-import { getPlaidAccountsByUserId } from "@/prisma/queries/plaidAccount";
+import { getAccountsByUserId } from "@/prisma/queries/accounts";
+import { getInstitutionsByUserId } from "@/prisma/queries/institutions";
+import { getUser } from "@/prisma/queries/users";
+import { AccountsGetResponse } from "plaid";
 import { cache } from "react";
 
 import { createPlaidClient } from "./plaid-client";
 
 /**
- * Get details for plaid accounts
+ * Get details for saved accounts
  */
-export const getPlaidAccountsDetails = cache(async (userId: number) => {
+export const getPlaidAccountsDetails = async (userId: number) => {
   try {
     if (!userId) throw new Error("User ID is required");
     const plaidClient = createPlaidClient();
 
-    const plaidAccounts = await getPlaidAccountsByUserId(userId);
+    const institutions = await getInstitutionsByUserId(userId);
 
-    // TODO: investigate saving account_ids since these can be fetched in bulk ex. options.account_ids: []
-    const plaidAccountsDetails = await Promise.all(
-      plaidAccounts.map(async (account) => {
-        const response = await plaidClient.accountsGet({
-          access_token: account.access_token,
-        });
+    const allAccessTokens = institutions
+      .map((institution) => institution.access_token)
+      .filter(Boolean) as string[];
 
-        return response.data;
-      })
+    const allAccountsDetails = await Promise.all(
+      allAccessTokens.map(async (token) => plaidClient.accountsGet({ access_token: token }))
     );
 
-    return plaidAccountsDetails;
+    return allAccountsDetails;
+  } catch (err) {
+    return null;
+  }
+};
+
+export const getPlaidAccountsByAccessToken = async (access_token: string) => {
+  const plaidClient = createPlaidClient();
+  try {
+    const response = await plaidClient.accountsGet({
+      access_token,
+    });
+
+    return response.data.accounts;
   } catch (err) {
     return [];
   }
-});
+};

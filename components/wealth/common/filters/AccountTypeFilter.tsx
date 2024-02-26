@@ -8,7 +8,7 @@ type AccountTypeFilterProps = {
 };
 
 export const AccountTypeFilter = ({ value, onValueChange, accounts }: AccountTypeFilterProps) => {
-  const allSubtypes = Array.from(new Set(accounts?.map((account) => account.subtype)));
+  const allSubtypes = Array.from(new Set(accounts?.map(({ subtype }) => subtype)));
 
   return (
     <>

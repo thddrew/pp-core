@@ -1,6 +1,6 @@
 "use server";
 
-import { createPlaidAccount } from "@/prisma/queries/plaidAccount";
+import { createAccount } from "@/prisma/queries/accounts";
 import { auth } from "@clerk/nextjs";
 import { CountryCode, LinkTokenCreateRequest, PlaidError, Products } from "plaid";
 
@@ -40,21 +40,7 @@ export const exchangePublicToken = async (publicToken: string, userId: number) =
     const response = await createPlaidClient().itemPublicTokenExchange({
       public_token: publicToken,
     });
-
-    await createPlaidAccount({
-      userId,
-      access_token: response.data.access_token,
-      request_id: response.data.request_id,
-      item_id: response.data.item_id,
-      type: "UNKNOWN",
-    });
-
-    // // Save the access token to the user's account
-    // await updateUserByClerkId(userId, {
-    //   plaidAccountId: plaidAccount.id,
-    // });
-
-    return response.data;
+    return response.data.access_token;
   } catch (err) {
     console.log(err);
   }

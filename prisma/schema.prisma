@@ -12,18 +12,48 @@ generator client {
 }
 
 model User {
-  id             Int      @id @default(autoincrement())
-  clerkId        String   @unique
-  createdAt      DateTime @default(now())
-  plaidAccountId Int?
+  id        Int      @id @default(autoincrement())
+  clerkId   String   @unique
+  createdAt DateTime @default(now())
 }
 
-model PlaidAccount {
-  id            Int      @id @default(autoincrement())
-  userId        Int
-  createdAt     DateTime @default(now())
-  access_token  String
-  item_id       String
-  request_id    String
-  type          String
+// accounts/get endpoint is free so we don't need to store too much info here
+model Account {
+  id                       Int      @id @default(autoincrement())
+  userId                   Int
+  createdAt                DateTime @default(now())
+  mask                     String?
+  account_id               String? // AccountBase.account_id
+  institution_id           String?
+  type                     String?
+  subtype                  String?
+  available_balance        Float?
+  current_balance          Float?
+  currency_code            String?
+  display_name             String?
+  official_name            String?
+  transactions_sync_cursor String?
+}
+
+model Transaction {
+  id             Int      @id @default(autoincrement())
+  account_id     String // AccountBase.account_id
+  transaction_id String
+  createdAt      DateTime @default(now())
+  amount         Float
+  date           DateTime
+  name           String
+  currency_code  String
+  pending        Boolean
+  category       String
+}
+
+model Institution {
+  id             Int     @id @default(autoincrement())
+  institution_id String
+  name           String
+  userId         Int
+  url            String?
+  logo           String?
+  access_token   String?
 }

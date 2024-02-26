@@ -20,27 +20,20 @@ import { AccountTypeFilter } from "../common/filters/AccountTypeFilter";
 import { useAccountsQuery } from "./useAccountsQuery";
 
 type AccountsTableProps = {
-  accounts: AccountsGetResponse[];
+  accounts: AccountBase[];
   userId: number;
-  institutions: Institution[];
   searchParams: InitialSearchParams;
 };
 
-export const AccountsTable = ({ accounts, userId, institutions, searchParams }: AccountsTableProps) => {
+export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableProps) => {
   const [urlState, setUrlState] = useUrlState(searchParams);
   const tableContainer = useRef<HTMLTableElement>(null);
-  const columnHelper = createColumnHelper<
-    AccountBase & {
-      institutionName?: string;
-    }
-  >();
+  const columnHelper = createColumnHelper<AccountBase>();
 
-  // const { data } = useAccountsQuery(userId);
+  return <div>TEST</div>;
 
   // Important to useMemo here to avoid an infinite re-render
-  const allAccounts = useMemo(() => accounts?.flatMap((account) => account.accounts) ?? [], [accounts]);
-
-  console.log(allAccounts);
+  const allAccounts = useMemo(() => accounts, [accounts]);
 
   const columns = [
     columnHelper.accessor("name", {
@@ -50,25 +43,25 @@ export const AccountsTable = ({ accounts, userId, institutions, searchParams }: 
         size: "auto",
       },
     }),
-    columnHelper.accessor("institutionName", {
-      cell: (row) => row.getValue(), // TODO: handle localization
-      header: "Institution",
-      meta: {
-        size: "auto",
-      },
-    }),
+    // columnHelper.accessor("institution_id", {
+    //   cell: (row) => row.getValue(), // TODO: handle localization
+    //   header: "Institution",
+    //   meta: {
+    //     size: "auto",
+    //   },
+    // }),
     columnHelper.accessor("subtype", {
       cell: (row) => <span className="capitalize">{row.getValue()}</span>, // TODO: handle localization
       header: "Type",
     }),
-    columnHelper.accessor("balances", {
+    columnHelper.accessor("balances.current", {
       cell: (row) => {
         // Format the amount as a dollar amount
         const formatted = new Intl.NumberFormat("en-US", {
           style: "currency",
-          currency: row.getValue().iso_currency_code ?? "CAD",
+          currency: row.row.original.balances.iso_currency_code ?? "CAD",
           currencyDisplay: "narrowSymbol",
-        }).format(row.getValue().current ?? 0);
+        }).format(row.getValue() ?? 0);
 
         return <div className="w-full text-right">{formatted}</div>;
       },
