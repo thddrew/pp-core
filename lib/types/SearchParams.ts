@@ -4,5 +4,5 @@ export type SearchParams = {
   toDate?: string;
   institutions?: string[];
   account?: string[];
-  accountType?: string;
+  accountType?: string[];
 };

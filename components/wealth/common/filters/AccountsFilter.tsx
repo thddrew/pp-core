@@ -1,17 +1,21 @@
 import { useUrlState } from "@/lib/useUrlState";
-import { AccountBase, TransactionsGetResponse } from "plaid";
+import { AccountBase, Institution, TransactionsGetResponse } from "plaid";
 
 import { MultiFilter, useMultiFilter } from "./MultiFilter";
 
 type AccountsFilterProps = {
   transactions: TransactionsGetResponse[];
+  institutions?: Institution[];
 };
 
-export const AccountsFilter = ({ transactions }: AccountsFilterProps) => {
+export const AccountsFilter = ({ transactions, institutions }: AccountsFilterProps) => {
   const [urlState, setUrlState] = useUrlState();
   const [accountFilters, setAccountFilters] = useMultiFilter(urlState.account);
   const accountOptions = transactions?.map((group) => ({
-    label: group.item.institution_id ?? undefined,
+    label:
+      institutions?.find((inst) => inst.institution_id === group.item.institution_id)?.name ??
+      group.item.institution_id ??
+      "Unknown",
     items: group.accounts,
   }));
 

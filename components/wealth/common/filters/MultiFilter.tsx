@@ -110,7 +110,7 @@ export function MultiFilter<Item>({
                     e.preventDefault();
                     onValueChange?.(id);
                   }}>
-                  {name}
+                  <span className="capitalize">{name}</span>
                 </DropdownMenuCheckboxItem>
               );
             })}

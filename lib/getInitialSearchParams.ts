@@ -6,7 +6,7 @@ import { SearchParams } from "./types/SearchParams";
 export type InitialSearchParams = ReturnType<typeof getInitialSearchParams>;
 
 export const getInitialSearchParams = (
-  searchParams: Record<string, string> = {},
+  searchParams: Record<string, string | string[]> = {},
   initialState: SearchParams = {}
 ) => {
   const urlState = {
@@ -15,17 +15,22 @@ export const getInitialSearchParams = (
     toDate: defaultDateRanges.last30Days.to.toISOString(),
     institutions: ["all"],
     account: ["all"],
-    accountType: "all",
+    accountType: ["all"],
     ...initialState,
     ...searchParams,
   };
 
+  // TODO: FIX
   if (typeof searchParams.institutions === "string" && searchParams.institutions) {
     urlState.institutions = searchParams.institutions.split(",");
   }
 
   if (typeof searchParams.account === "string" && searchParams.account) {
     urlState.account = searchParams.account.split(",");
+  }
+
+  if (typeof searchParams.accountType === "string" && searchParams.accountType) {
+    urlState.accountType = searchParams.accountType.split(",");
   }
 
   if (!isValid(new Date(urlState.fromDate)) || !isValid(new Date(urlState.toDate))) {

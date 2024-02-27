@@ -2,7 +2,6 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { InitialSearchParams } from "@/lib/getInitialSearchParams";
-import { useUrlState } from "@/lib/useUrlState";
 import {
   createColumnHelper,
   useReactTable,
@@ -13,11 +12,10 @@ import {
   Cell,
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { AccountBase, AccountsGetResponse, Institution, InstitutionsGetByIdResponse } from "plaid";
+import { AccountBase } from "plaid";
 import { useMemo, useRef } from "react";
 
-import { AccountTypeFilter } from "../common/filters/AccountTypeFilter";
-import { useAccountsQuery } from "./useAccountsQuery";
+import { AccountTypesFilter } from "../common/filters/AccountTypeFilter";
 
 type AccountsTableProps = {
   accounts: AccountBase[];
@@ -26,11 +24,8 @@ type AccountsTableProps = {
 };
 
 export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableProps) => {
-  const [urlState, setUrlState] = useUrlState(searchParams);
   const tableContainer = useRef<HTMLTableElement>(null);
   const columnHelper = createColumnHelper<AccountBase>();
-
-  return <div>TEST</div>;
 
   // Important to useMemo here to avoid an infinite re-render
   const allAccounts = useMemo(() => accounts, [accounts]);
@@ -43,13 +38,13 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
         size: "auto",
       },
     }),
-    // columnHelper.accessor("institution_id", {
-    //   cell: (row) => row.getValue(), // TODO: handle localization
-    //   header: "Institution",
-    //   meta: {
-    //     size: "auto",
-    //   },
-    // }),
+    columnHelper.accessor("institution_id", {
+      cell: (row) => row.getValue(), // TODO: handle localization
+      header: "Institution",
+      meta: {
+        size: "auto",
+      },
+    }),
     columnHelper.accessor("subtype", {
       cell: (row) => <span className="capitalize">{row.getValue()}</span>, // TODO: handle localization
       header: "Type",
@@ -119,15 +114,17 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
     return { width: cell.column.getSize() };
   };
 
+  const uniqueAccountTypes = Array.from(
+    new Set(allAccounts.flatMap((account) => (account.subtype ? [account.subtype] : [])))
+  );
+
   return (
     <>
       <div className="flex items-center gap-3">
         <div className="w-full max-w-[200px]">
-          <AccountTypeFilter
-            value={urlState.accountType}
-            onValueChange={(accountType) => setUrlState({ ...urlState, accountType })}
-            accounts={allAccounts}
-          />
+          <span className="text-sm text-muted-foreground">Account Type</span>
+          <div className="h-1" />
+          <AccountTypesFilter accounts={uniqueAccountTypes} />
         </div>
       </div>
       <div className="h-8" />

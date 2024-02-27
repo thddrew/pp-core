@@ -11,7 +11,7 @@ import { createPlaidClient } from "./plaid-client";
 /**
  * Get details for saved accounts
  */
-export const getPlaidAccountsDetails = async (userId: number) => {
+export const getPlaidAccountsDetails = cache(async (userId: number) => {
   try {
     if (!userId) throw new Error("User ID is required");
     const plaidClient = createPlaidClient();
@@ -23,14 +23,18 @@ export const getPlaidAccountsDetails = async (userId: number) => {
       .filter(Boolean) as string[];
 
     const allAccountsDetails = await Promise.all(
-      allAccessTokens.map(async (token) => plaidClient.accountsGet({ access_token: token }))
+      allAccessTokens.map(async (token) => {
+        const response = await plaidClient.accountsGet({ access_token: token });
+
+        return response.data;
+      })
     );
 
     return allAccountsDetails;
   } catch (err) {
     return null;
   }
-};
+});
 
 export const getPlaidAccountsByAccessToken = async (access_token: string) => {
   const plaidClient = createPlaidClient();

@@ -26,6 +26,7 @@ type TransactionsTableProps = {
 };
 
 export const TransactionsTable = ({ userId, searchParams, transactions }: TransactionsTableProps) => {
+  console.log(transactions);
   const [urlState, setUrlState] = useUrlState(searchParams);
   const tableContainer = useRef<HTMLTableElement>(null);
   // const { data } = useTransactionsQuery(userId, urlState.fromDate, urlState.toDate);

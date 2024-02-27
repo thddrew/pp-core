@@ -24,12 +24,13 @@ export const Transactions = async ({ searchParams }: { searchParams: InitialSear
   );
 
   let filteredTransactions = allTransactions;
-  // TODO: make filters reusable and composable?
-  if (!searchParams?.institutions?.includes("all")) {
-    filteredTransactions = allTransactions.filter(
-      (transaction) => searchParams?.institutions?.includes(transaction.item.institution_id ?? "") ?? false
-    );
-  }
+  // TODO: apply other filters
+  filteredTransactions = allTransactions.filter((transaction) => {
+    const matchesInstitution =
+      searchParams?.institutions?.includes(transaction.item.institution_id ?? "") ?? false;
+
+    return matchesInstitution;
+  });
 
   const allAccounts = filteredTransactions.flatMap((transaction) => transaction.accounts);
 

@@ -9,7 +9,7 @@ import { X } from "lucide-react";
 import { AccountBase, Institution, TransactionsGetResponse } from "plaid";
 import { useState } from "react";
 
-import { AccountTypeFilter } from "../common/filters/AccountTypeFilter";
+import { AccountTypesFilter } from "../common/filters/AccountTypeFilter";
 import { AccountsFilter } from "../common/filters/AccountsFilter";
 import { InstitutionsFilter } from "../common/filters/InstitutionsFilter";
 
@@ -105,14 +105,12 @@ export const TransactionsFilter = ({
         <div className="w-full max-w-[200px]">
           <span className="text-sm text-muted-foreground">Accounts</span>
           <div className="h-1" />
-          <AccountsFilter transactions={transactions ?? []} />
+          <AccountsFilter transactions={transactions ?? []} institutions={institutions} />
         </div>
         <div className="w-full max-w-[200px]">
-          <AccountTypeFilter
-            value={urlState.accountType}
-            onValueChange={(accountType) => setUrlState({ ...urlState, accountType })}
-            accounts={accounts}
-          />
+          <span className="text-sm text-muted-foreground">Account Types</span>
+          <div className="h-1" />
+          <AccountTypesFilter accounts={accounts ?? []} />
         </div>
       </div>
     </div>
