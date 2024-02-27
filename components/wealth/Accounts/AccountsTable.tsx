@@ -2,6 +2,7 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { InitialSearchParams } from "@/lib/getInitialSearchParams";
+import { AccountBaseWithInst } from "@/lib/types/plaid";
 import {
   createColumnHelper,
   useReactTable,
@@ -12,24 +13,23 @@ import {
   Cell,
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { AccountBase } from "plaid";
 import { useMemo, useRef } from "react";
 
 import { AccountTypesFilter } from "../common/filters/AccountTypeFilter";
 
 type AccountsTableProps = {
-  accounts: AccountBase[];
+  accounts: AccountBaseWithInst[];
   userId: number;
   searchParams: InitialSearchParams;
 };
 
 export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableProps) => {
   const tableContainer = useRef<HTMLTableElement>(null);
-  const columnHelper = createColumnHelper<AccountBase>();
+  const columnHelper = createColumnHelper<AccountBaseWithInst>();
 
+  console.log(accounts);
   // Important to useMemo here to avoid an infinite re-render
-  const allAccounts = useMemo(() => accounts, [accounts]);
-
+  // const allAccounts = useMemo(() => accounts, [accounts]);
   const columns = [
     columnHelper.accessor("name", {
       cell: (row) => row.getValue(), // TODO: handle localization
@@ -38,8 +38,12 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
         size: "auto",
       },
     }),
-    columnHelper.accessor("institution_id", {
-      cell: (row) => row.getValue(), // TODO: handle localization
+    columnHelper.accessor("institution_name", {
+      cell: (row) => {
+        console.log(row);
+
+        return row.getValue();
+      }, // TODO: handle localization
       header: "Institution",
       meta: {
         size: "auto",
@@ -67,8 +71,8 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
 
   const table = useReactTable({
     columns,
-    data: allAccounts,
-    getCoreRowModel: getCoreRowModel<AccountBase>(),
+    data: accounts,
+    getCoreRowModel: getCoreRowModel<AccountBaseWithInst>(),
     defaultColumn: {
       minSize: 80,
     },
@@ -90,7 +94,7 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
 
   // Default cell widths are 150px and cannot be overwritten to be auto-sizing
   // Therefore, we must manually set auto-sizing if required
-  const getHeaderWidthStyles = (header: Header<AccountBase, unknown>) => {
+  const getHeaderWidthStyles = (header: Header<AccountBaseWithInst, unknown>) => {
     const { meta } = header.column.columnDef;
 
     if (meta && "size" in meta) {
@@ -102,7 +106,7 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
     return { width: header.getSize() };
   };
 
-  const getCellWidthStyles = (cell: Cell<AccountBase, unknown>) => {
+  const getCellWidthStyles = (cell: Cell<AccountBaseWithInst, unknown>) => {
     const { meta } = cell.column.columnDef;
 
     if (meta && "size" in meta) {
@@ -115,7 +119,7 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
   };
 
   const uniqueAccountTypes = Array.from(
-    new Set(allAccounts.flatMap((account) => (account.subtype ? [account.subtype] : [])))
+    new Set(accounts.flatMap((account) => (account.subtype ? [account.subtype] : [])))
   );
 
   return (
@@ -144,7 +148,7 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
             height: rowVirtualizer.getTotalSize(),
           }}>
           {rowVirtualizer.getVirtualItems().map((vRow) => {
-            const row = rows[vRow.index] as Row<AccountBase>;
+            const row = rows[vRow.index] as Row<AccountBaseWithInst>;
 
             return (
               <TableRow

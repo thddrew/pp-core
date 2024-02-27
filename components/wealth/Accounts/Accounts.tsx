@@ -1,9 +1,8 @@
 import { InitialSearchParams } from "@/lib/getInitialSearchParams";
 import { getPlaidAccountsDetails } from "@/lib/plaid/accounts";
+import { AccountBaseWithInst } from "@/lib/types/plaid";
+import { getInstitutionsByUserId } from "@/prisma/queries/institutions";
 import { getCurrentUser } from "@/prisma/queries/users";
-import { Loader2Icon } from "lucide-react";
-import { AccountBase } from "plaid";
-import { Suspense } from "react";
 
 import { OpenLinkButton } from "../LinkToken/OpenLinkButton";
 import { SummaryCard } from "../SummaryCard";
@@ -63,27 +62,28 @@ export const AccountsSummary = async () => {
   );
 };
 
-export const AccountsWrapper = async ({ searchParams }: { searchParams: InitialSearchParams }) => {
+export const AccountsTablesWrapper = async ({ searchParams }: { searchParams: InitialSearchParams }) => {
   const user = await getCurrentUser();
-  const accounts = user ? await getPlaidAccountsDetails(user.id) : null;
 
-  let allAccounts: AccountBase[] = [];
-  if (accounts) {
-    allAccounts = accounts.flatMap((account) =>
-      account.accounts.map((acc) => ({ ...acc, institution_id: account.item.institution_id }))
-    );
-  }
-  return (
-    <>
-      <AccountsHeader />
-      <div className="h-8" />
-      <Suspense fallback={<Loader2Icon className="animate-spin" />}>
-        <AccountsSummary />
-      </Suspense>
-      <div className="h-16" />
-      <Suspense fallback={<Loader2Icon className="animate-spin" />}>
-        {user?.id && <AccountsTable userId={user.id} accounts={allAccounts} searchParams={searchParams} />}
-      </Suspense>
-    </>
+  if (!user) return <p className="text-gray-400">User not found</p>;
+
+  const accounts = await getPlaidAccountsDetails(user.id);
+  const institutions = await getInstitutionsByUserId(user.id);
+
+  if (!accounts) return <p className="text-gray-400">No accounts found</p>;
+
+  const allAccounts = accounts.flatMap<AccountBaseWithInst>((account) =>
+    account.accounts.map(
+      (acc) =>
+        ({
+          ...acc,
+          institution_id: account.item.institution_id,
+          institution_name:
+            institutions?.find((inst) => inst.institution_id === account.item.institution_id)?.name ??
+            account.item.institution_id,
+        }) satisfies AccountBaseWithInst
+    )
   );
+
+  return <AccountsTable userId={user.id} accounts={allAccounts} searchParams={searchParams} />;
 };

@@ -1,4 +1,4 @@
-import { AccountsHeader, AccountsSummary, AccountsWrapper } from "@/components/wealth/Accounts/Accounts";
+import { AccountsHeader, AccountsSummary, AccountsComponent } from "@/components/wealth/Accounts/Accounts";
 import { LiabilitiesWrapper } from "@/components/wealth/Liabilities/Liabilities";
 import { Transactions } from "@/components/wealth/Transactions/Transactions";
 import { getInitialSearchParams } from "@/lib/getInitialSearchParams";
