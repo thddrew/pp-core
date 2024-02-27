@@ -1,5 +1,6 @@
 import { Configuration, PlaidApi, PlaidEnvironments } from "plaid";
 
+// TODO: create plaid singleton??
 export const createPlaidClient = () => {
   const configuration = new Configuration({
     basePath: PlaidEnvironments.sandbox,
