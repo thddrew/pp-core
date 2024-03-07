@@ -1,5 +1,5 @@
 import { useUrlState } from "@/lib/useUrlState";
-import { AccountBase, Institution, TransactionsGetResponse } from "plaid";
+import { Institution } from "@prisma/client";
 
 import { MultiFilter, useMultiFilter } from "./MultiFilter";
 

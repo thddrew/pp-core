@@ -27,7 +27,6 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
   const tableContainer = useRef<HTMLTableElement>(null);
   const columnHelper = createColumnHelper<AccountBaseWithInst>();
 
-  console.log(accounts);
   // Important to useMemo here to avoid an infinite re-render
   // const allAccounts = useMemo(() => accounts, [accounts]);
   const columns = [
@@ -39,11 +38,7 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
       },
     }),
     columnHelper.accessor("institution_name", {
-      cell: (row) => {
-        console.log(row);
-
-        return row.getValue();
-      }, // TODO: handle localization
+      cell: (row) => row.getValue(), // TODO: handle localization
       header: "Institution",
       meta: {
         size: "auto",

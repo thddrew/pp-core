@@ -1,55 +1,27 @@
 import { InitialSearchParams } from "@/lib/getInitialSearchParams";
-import { getInstitutionDetails } from "@/lib/plaid/institutions";
-import { getAllTransactionsForUser } from "@/lib/plaid/transactions";
-import { PLAID_TRANSACTIONS_KEY } from "@/lib/plaid/utils";
+import { syncTransactionsForUser } from "@/lib/plaid/transactions";
+import { getAccountsByUserId } from "@/prisma/queries/accounts";
+import { getInstitutionsByUserId } from "@/prisma/queries/institutions";
+import { getTransactionsByUserId } from "@/prisma/queries/transactions";
 import { getCurrentUser } from "@/prisma/queries/users";
-import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
-import { CountryCode, Institution } from "plaid";
 
 import { TransactionsFilter } from "./TransactionsFilter";
-import { TransactionsTable } from "./TransactionsTable";
 
 export const Transactions = async ({ searchParams }: { searchParams: InitialSearchParams }) => {
-  const queryClient = new QueryClient();
   const user = await getCurrentUser();
 
   if (!user) {
     return <div className="text-gray-400">User not found</div>;
   }
 
-  const allTransactions = await getAllTransactionsForUser(
-    user.id,
-    searchParams?.fromDate,
-    searchParams?.toDate
-  );
+  const transactions = await getTransactionsByUserId(user.id);
+  const allAccounts = await getAccountsByUserId(user.id);
+  const institutions = await getInstitutionsByUserId(user.id);
 
-  let filteredTransactions = allTransactions;
-  // TODO: apply other filters
-  filteredTransactions = allTransactions.filter((transaction) => {
-    const matchesInstitution =
-      searchParams?.institutions?.includes(transaction.item.institution_id ?? "") ?? false;
-
-    return matchesInstitution;
-  });
-
-  const allAccounts = filteredTransactions.flatMap((transaction) => transaction.accounts);
-
-  const institutions = (
-    await Promise.all(
-      allTransactions.map(
-        ({ item }) =>
-          item.institution_id ? getInstitutionDetails(item.institution_id, [CountryCode.Ca]) : null // TODO: handle multiple countries
-      )
-    )
-  ).filter(Boolean) as Institution[]; // TODO: why does TS not now this cannot be null?
-
-  queryClient.setQueryData(
-    [PLAID_TRANSACTIONS_KEY, user.id, searchParams?.fromDate, searchParams?.toDate],
-    allTransactions
-  );
+  // const syncedTransactions = await syncTransactionsForUser(user.id);
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
+    <>
       <TransactionsFilter
         userId={user.id}
         searchParams={searchParams}
@@ -59,6 +31,6 @@ export const Transactions = async ({ searchParams }: { searchParams: InitialSear
       />
       <div className="h-8" />
       <TransactionsTable searchParams={searchParams} userId={user.id} transactions={filteredTransactions} />
-    </HydrationBoundary>
+    </>
   );
 };

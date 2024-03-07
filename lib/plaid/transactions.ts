@@ -1,7 +1,9 @@
 "use server";
 
 import { getAccountsByUserId } from "@/prisma/queries/accounts";
-import { getInstitutionsByUserId } from "@/prisma/queries/institutions";
+import { getInstitutionsByUserId, updateInstitution } from "@/prisma/queries/institutions";
+import { updateTransactions } from "@/prisma/queries/transactions";
+import { Institution } from "@prisma/client";
 import { formatDate, subDays } from "date-fns";
 
 import { createPlaidClient } from "./plaid-client";
@@ -38,23 +40,46 @@ export const getAllTransactionsForUser = async (
   return responses.map((response) => response.data);
 };
 
+// TODO: background jobs queue system
+export const syncTransactionsByInst = async (inst: Institution, cursor?: string) => {
+  const plaidClient = createPlaidClient();
+
+  if (!inst.access_token) {
+    throw new Error(`Access token not found for institution ${inst.id}`);
+  }
+
+  let hasMore = true;
+  let nextCursor = cursor;
+
+  while (hasMore) {
+    const response = await plaidClient.transactionsSync({
+      access_token: inst.access_token,
+      cursor: nextCursor,
+    });
+
+    await updateTransactions(response.data);
+
+    hasMore = response.data.has_more;
+    nextCursor = response.data.next_cursor;
+  }
+
+  updateInstitution(inst.id, { sync_cursor: nextCursor, last_sync: new Date() });
+};
+
 export const syncTransactionsForUser = async (userId: number) => {
   const institutions = await getInstitutionsByUserId(userId);
   const plaidClient = createPlaidClient();
 
-  const allTransactions = await Promise.all(
-    institutions.map(async (institution) => {
-      if (!institution.access_token) {
-        return null;
-      }
+  for (const institution of institutions) {
+    if (!institution.access_token) {
+      return;
+    }
 
-      const response = await plaidClient.transactionsSync({
-        access_token: institution.access_token,
-      });
+    const response = await plaidClient.transactionsSync({
+      access_token: institution.access_token,
+      cursor: institution.sync_cursor ?? undefined,
+    });
 
-      return response.data;
-    })
-  );
-
-  return allTransactions.flatMap((transactions) => (transactions ? [transactions] : []));
+    return response.data;
+  }
 };

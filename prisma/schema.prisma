@@ -37,18 +37,18 @@ model Account {
 model Transaction {
   id             Int      @id @default(autoincrement())
   account_id     String // AccountBase.account_id
-  transaction_id String
+  transaction_id String   @unique
   createdAt      DateTime @default(now())
   amount         Float
   date           DateTime
   name           String
-  currency_code  String
+  currency_code  String?
   pending        Boolean
-  category       String
+  category       String?
 }
 
 model Institution {
-  id             Int     @id @default(autoincrement())
+  id             Int       @id @default(autoincrement())
   institution_id String
   name           String
   userId         Int
@@ -56,4 +56,5 @@ model Institution {
   logo           String?
   access_token   String?
   sync_cursor    String?
+  last_sync      DateTime?
 }

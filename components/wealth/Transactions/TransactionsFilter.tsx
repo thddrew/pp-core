@@ -5,8 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { InitialSearchParams } from "@/lib/getInitialSearchParams";
 import { useUrlState } from "@/lib/useUrlState";
+import { Account, Institution, Transaction } from "@prisma/client";
 import { X } from "lucide-react";
-import { AccountBase, Institution, TransactionsGetResponse } from "plaid";
 import { useState } from "react";
 
 import { AccountTypesFilter } from "../common/filters/AccountTypeFilter";
@@ -33,8 +33,8 @@ type TransactionsFilterProps = {
   userId: number;
   searchParams: InitialSearchParams;
   institutions?: Institution[];
-  transactions?: TransactionsGetResponse[];
-  accounts?: AccountBase[];
+  transactions?: Transaction[];
+  accounts?: Account[];
 };
 
 export const TransactionsFilter = ({

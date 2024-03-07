@@ -12,7 +12,7 @@ export const AccountTypesFilter = ({ accounts }: AccountTypesFilterProps) => {
   const [accountTypeFilters, setAccountTypeFilters] = useMultiFilter(urlState.accountType);
 
   return (
-    <MultiFilter<(typeof accounts)[number]>
+    <MultiFilter<AccountSubtype>
       items={[{ items: accounts }]}
       values={accountTypeFilters}
       getKey={(item) => item}

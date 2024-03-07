@@ -1,26 +1,27 @@
 import { useUrlState } from "@/lib/useUrlState";
-import { AccountBase, Institution, TransactionsGetResponse } from "plaid";
+import { Account, Institution, Transaction } from "@prisma/client";
 
 import { MultiFilter, useMultiFilter } from "./MultiFilter";
 
 type AccountsFilterProps = {
-  transactions: TransactionsGetResponse[];
+  accounts?: Account[];
   institutions?: Institution[];
 };
 
-export const AccountsFilter = ({ transactions, institutions }: AccountsFilterProps) => {
+export const AccountsFilter = ({ accounts, institutions }: AccountsFilterProps) => {
   const [urlState, setUrlState] = useUrlState();
   const [accountFilters, setAccountFilters] = useMultiFilter(urlState.account);
-  const accountOptions = transactions?.map((group) => ({
+
+  const accountOptions = accounts?.map((account) => ({
     label:
-      institutions?.find((inst) => inst.institution_id === group.item.institution_id)?.name ??
-      group.item.institution_id ??
+      institutions?.find((inst) => inst.institution_id === account.institution_id)?.name ??
+      account.institution_id ??
       "Unknown",
-    items: group.accounts,
+    items: accounts.filter((acc) => acc.institution_id === account.institution_id),
   }));
 
   return (
-    <MultiFilter<AccountBase>
+    <MultiFilter<Account>
       items={accountOptions}
       values={accountFilters}
       getKey={(item) => item.account_id}
