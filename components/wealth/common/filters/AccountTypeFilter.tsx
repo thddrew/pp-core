@@ -1,5 +1,5 @@
 import { useUrlState } from "@/lib/useUrlState";
-import { AccountBase, AccountSubtype, TransactionsGetResponse } from "plaid";
+import { AccountSubtype } from "plaid";
 
 import { MultiFilter, useMultiFilter } from "./MultiFilter";
 

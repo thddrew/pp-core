@@ -13,6 +13,7 @@ export const getTransactionsByAccountId = async (account_id: string) => {
   return allTransactions;
 };
 
+// TODO: pagination
 export const getTransactionsByUserId = async (userId: number) => {
   const allAccounts = await getAccountsByUserId(userId);
 

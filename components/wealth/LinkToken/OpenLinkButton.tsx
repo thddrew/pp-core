@@ -12,6 +12,7 @@ import {
 import { filterDuplicateAccounts } from "@/lib/filterDuplicateAccounts";
 import { getPlaidAccountsByAccessToken } from "@/lib/plaid/accounts";
 import { exchangePublicToken, getLinkToken } from "@/lib/plaid/link-token";
+import { startSyncTransactionsJob } from "@/lib/qstash/transactions";
 import { createAccounts } from "@/prisma/queries/accounts";
 import { createInstitution, getInstitutionByInstId, updateInstitution } from "@/prisma/queries/institutions";
 import { getCurrentUser, updateUser } from "@/prisma/queries/users";
@@ -29,9 +30,12 @@ export const OpenLinkButton = () => {
       setToken(null);
       const user = await getCurrentUser();
 
-      console.log(metadata);
-
       if (!user) throw new Error("User not found");
+
+      if (metadata.institution?.institution_id) {
+        await startSyncTransactionsJob(metadata.institution.institution_id, user.id);
+      }
+
       const newAccounts = await filterDuplicateAccounts(metadata, user.clerkId);
 
       if (!newAccounts.length) {
@@ -62,15 +66,17 @@ export const OpenLinkButton = () => {
         ? await getInstitutionByInstId(metadata.institution?.institution_id)
         : null;
 
+      let updatedInstitution = existingInstitution;
+
       if (!existingInstitution) {
-        await createInstitution({
+        updatedInstitution = await createInstitution({
           institution_id: metadata.institution?.institution_id ?? "UNKNOWN",
           name: metadata.institution?.name ?? metadata.institution?.institution_id ?? "UNKNOWN",
           access_token: accessToken,
           userId: user.id,
         });
       } else {
-        await updateInstitution(existingInstitution.id, {
+        updatedInstitution = await updateInstitution(existingInstitution.id, {
           access_token: accessToken,
         });
       }
@@ -88,9 +94,11 @@ export const OpenLinkButton = () => {
           subtype: account.subtype,
           currency_code: account.balances.iso_currency_code,
           official_name: account.official_name,
-          transactions_sync_cursor: null,
         }))
       );
+
+      // sync transactions job
+      await startSyncTransactionsJob(updatedInstitution, user.id);
     },
     token,
   });

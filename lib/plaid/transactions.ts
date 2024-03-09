@@ -17,27 +17,7 @@ export const getAllTransactionsForUser = async (
   startDate: string = subDays(new Date(), 30).toISOString(),
   endDate: string = new Date().toISOString()
 ) => {
-  const accounts = await getAccountsByUserId(userId);
-
-  if (!accounts.length) {
-    // throw new Error("Plaid accounts not found")
-    return [];
-  }
-
-  const plaidClient = createPlaidClient();
-
-  // TODO: get transactions from db
-  const responses = await Promise.all(
-    accounts.map((account) =>
-      plaidClient.transactionsGet({
-        access_token: account.access_token,
-        start_date: formatDate(startDate, "yyyy-MM-dd"),
-        end_date: formatDate(endDate, "yyyy-MM-dd"),
-      })
-    )
-  );
-
-  return responses.map((response) => response.data);
+  return [];
 };
 
 // TODO: background jobs queue system

@@ -16,13 +16,12 @@ export const filterDuplicateAccounts = async (metadata: PlaidLinkOnSuccessMetada
   // Duplicate accounts are those that have the same institution_id
   existingAccounts = existingAccounts.filter((acc) => acc.institution_id === institution?.institution_id);
 
-  // TODO: optimize
   const newAccounts = accounts.filter((account) => {
-    const matchingMask = existingAccounts.find((acc) => acc.mask === account.mask);
-    // Matching name may not be reliable
-    const matchingName = existingAccounts.find((acc) => acc.display_name === account.name);
+    const isExisting = existingAccounts.find(
+      (acc) => acc.mask === account.mask || acc.display_name === account.name
+    );
 
-    return !matchingMask && !matchingName;
+    return !isExisting;
   });
 
   return newAccounts;
