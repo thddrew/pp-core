@@ -1,6 +1,6 @@
 import { getLiabilities } from "@/lib/plaid/liabilities";
 import { PLAID_LIABILITIES_KEY } from "@/lib/plaid/utils";
-import { getCurrentUser } from "@/prisma/queries/users";
+import { getCurrentUser } from "@/lib/prisma/queries/users";
 import { HydrationBoundary, QueryClient, dehydrate } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
 import { Suspense } from "react";

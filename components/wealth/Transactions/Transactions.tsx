@@ -1,9 +1,9 @@
 import { InitialSearchParams } from "@/lib/getInitialSearchParams";
 import { syncTransactionsForUser } from "@/lib/plaid/transactions";
-import { getAccountsByUserId } from "@/prisma/queries/accounts";
-import { getInstitutionsByUserId } from "@/prisma/queries/institutions";
-import { getTransactionsByUserId } from "@/prisma/queries/transactions";
-import { getCurrentUser } from "@/prisma/queries/users";
+import { getAccountsByUserId } from "@/lib/prisma/queries/accounts";
+import { getInstitutionsByUserId } from "@/lib/prisma/queries/institutions";
+import { getTransactionsByUserId } from "@/lib/prisma/queries/transactions";
+import { getCurrentUser } from "@/lib/prisma/queries/users";
 
 import { TransactionsFilter } from "./TransactionsFilter";
 

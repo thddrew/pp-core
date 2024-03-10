@@ -1,6 +1,6 @@
 "use server";
 
-import { createAccount } from "@/prisma/queries/accounts";
+import { createAccount } from "@/lib/prisma/queries/accounts";
 import { auth } from "@clerk/nextjs";
 import { CountryCode, LinkTokenCreateRequest, PlaidError, Products } from "plaid";
 

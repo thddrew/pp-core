@@ -1,8 +1,8 @@
 /**
  * Filters duplicate Plaid accounts from a link token response
  */
-import { getAccountsByUserId } from "@/prisma/queries/accounts";
-import { getUserByClerkId } from "@/prisma/queries/users";
+import { getAccountsByUserId } from "@/lib/prisma/queries/accounts";
+import { getUserByClerkId } from "@/lib/prisma/queries/users";
 import { PlaidLinkOnSuccessMetadata } from "react-plaid-link";
 
 export const filterDuplicateAccounts = async (metadata: PlaidLinkOnSuccessMetadata, clerkId: string) => {

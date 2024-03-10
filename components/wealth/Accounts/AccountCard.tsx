@@ -1,13 +1,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReactNode } from "react";
 
-type SummaryCardProps = {
+type AccountCardProps = {
   title: ReactNode;
   description?: ReactNode;
   children: ReactNode;
 };
 
-export const SummaryCard = async ({ title, description, children }: SummaryCardProps) => (
+export const AccountCard = async ({ title, description, children }: AccountCardProps) => (
   <Card>
     <CardHeader>
       <CardTitle>{title}</CardTitle>

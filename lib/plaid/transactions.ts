@@ -1,8 +1,8 @@
 "use server";
 
-import { getAccountsByUserId } from "@/prisma/queries/accounts";
-import { getInstitutionsByUserId, updateInstitution } from "@/prisma/queries/institutions";
-import { updateTransactions } from "@/prisma/queries/transactions";
+import { getAccountsByUserId } from "@/lib/prisma/queries/accounts";
+import { getInstitutionsByUserId, updateInstitution } from "@/lib/prisma/queries/institutions";
+import { updateTransactions } from "@/lib/prisma/queries/transactions";
 import { Institution } from "@prisma/client";
 import { formatDate, subDays } from "date-fns";
 
@@ -21,7 +21,7 @@ export const getAllTransactionsForUser = async (
 };
 
 // TODO: background jobs queue system
-export const syncTransactionsByInst = async (inst: Institution, cursor?: string) => {
+export const syncAllTransactionsByInst = async (inst: Institution, cursor?: string) => {
   const plaidClient = createPlaidClient();
 
   if (!inst.access_token) {
@@ -29,7 +29,7 @@ export const syncTransactionsByInst = async (inst: Institution, cursor?: string)
   }
 
   let hasMore = true;
-  let nextCursor = cursor;
+  let nextCursor: string | undefined = cursor ?? inst.sync_cursor ?? undefined;
 
   while (hasMore) {
     const response = await plaidClient.transactionsSync({

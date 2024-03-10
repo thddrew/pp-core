@@ -12,10 +12,14 @@ import {
 import { filterDuplicateAccounts } from "@/lib/filterDuplicateAccounts";
 import { getPlaidAccountsByAccessToken } from "@/lib/plaid/accounts";
 import { exchangePublicToken, getLinkToken } from "@/lib/plaid/link-token";
+import { createAccounts } from "@/lib/prisma/queries/accounts";
+import {
+  createInstitution,
+  getInstitutionByInstId,
+  updateInstitution,
+} from "@/lib/prisma/queries/institutions";
+import { getCurrentUser, updateUser } from "@/lib/prisma/queries/users";
 import { startSyncTransactionsJob } from "@/lib/qstash/transactions";
-import { createAccounts } from "@/prisma/queries/accounts";
-import { createInstitution, getInstitutionByInstId, updateInstitution } from "@/prisma/queries/institutions";
-import { getCurrentUser, updateUser } from "@/prisma/queries/users";
 import { DollarSignIcon, Loader2Icon, PiggyBankIcon } from "lucide-react";
 import { Products } from "plaid";
 import { useEffect, useState } from "react";
@@ -32,8 +36,14 @@ export const OpenLinkButton = () => {
 
       if (!user) throw new Error("User not found");
 
+      let syncingJobKey = null;
       if (metadata.institution?.institution_id) {
-        await startSyncTransactionsJob(metadata.institution.institution_id, user.id);
+        try {
+          syncingJobKey = await startSyncTransactionsJob(metadata.institution.institution_id, user.id);
+        } catch (err) {
+          // TODO: handle error
+          console.error("Error starting sync job", err);
+        }
       }
 
       const newAccounts = await filterDuplicateAccounts(metadata, user.clerkId);
@@ -96,9 +106,6 @@ export const OpenLinkButton = () => {
           official_name: account.official_name,
         }))
       );
-
-      // sync transactions job
-      await startSyncTransactionsJob(updatedInstitution, user.id);
     },
     token,
   });

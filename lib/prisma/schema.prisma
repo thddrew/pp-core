@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 datasource db {
-  provider  = "mysql"
+  provider  = "postgresql"
   url       = env("DB_TRANSACTION_URI")
   directUrl = env("DB_SESSION_URI")
   // relationMode = "prisma"

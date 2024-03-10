@@ -1,6 +1,6 @@
 "use server";
 
-import { getAccountById } from "@/prisma/queries/accounts";
+import { getAccountById } from "@/lib/prisma/queries/accounts";
 
 import { createPlaidClient } from "./plaid-client";
 

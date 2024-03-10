@@ -1,10 +1,10 @@
-import { Institution } from "@prisma/client";
+"use server";
 
 import { qstashClient } from "./client";
 
 export const startSyncTransactionsJob = async (instId: string, userId: number) => {
   const body = {
-    institutionId: inst.id,
+    institutionId: instId,
     userId,
   };
   // If you know the public URL of the email API, you can use it directly

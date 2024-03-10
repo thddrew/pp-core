@@ -1,4 +1,4 @@
-import { TransactionsSyncResponse } from "plaid";
+import type { TransactionsSyncResponse } from "plaid";
 
 import prisma from "../client";
 import { getAccountsByUserId } from "./accounts";

@@ -1,8 +1,16 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { InitialSearchParams } from "@/lib/getInitialSearchParams";
 import { AccountBaseWithInst } from "@/lib/types/plaid";
+import { cn } from "@/lib/utils";
 import {
   createColumnHelper,
   useReactTable,
@@ -13,7 +21,8 @@ import {
   Cell,
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useMemo, useRef } from "react";
+import { DeleteIcon, MoreVerticalIcon, RefreshCcwIcon, TrashIcon } from "lucide-react";
+import { HTMLProps, useMemo, useRef } from "react";
 
 import { AccountTypesFilter } from "../common/filters/AccountTypeFilter";
 
@@ -23,6 +32,10 @@ type AccountsTableProps = {
   searchParams: InitialSearchParams;
 };
 
+const StyledTableCell = ({ className, ...props }: HTMLProps<HTMLDivElement>) => (
+  <div {...props} className={cn("flex w-full items-center", className)} />
+);
+
 export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableProps) => {
   const tableContainer = useRef<HTMLTableElement>(null);
   const columnHelper = createColumnHelper<AccountBaseWithInst>();
@@ -31,21 +44,21 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
   // const allAccounts = useMemo(() => accounts, [accounts]);
   const columns = [
     columnHelper.accessor("name", {
-      cell: (row) => row.getValue(), // TODO: handle localization
+      cell: (row) => <StyledTableCell>{row.getValue()}</StyledTableCell>, // TODO: handle localization
       header: "Name",
       meta: {
         size: "auto",
       },
     }),
     columnHelper.accessor("institution_name", {
-      cell: (row) => row.getValue(), // TODO: handle localization
+      cell: (row) => <StyledTableCell>{row.getValue()}</StyledTableCell>, // TODO: handle localization
       header: "Institution",
       meta: {
         size: "auto",
       },
     }),
     columnHelper.accessor("subtype", {
-      cell: (row) => <span className="capitalize">{row.getValue()}</span>, // TODO: handle localization
+      cell: (row) => <StyledTableCell className="capitalize">{row.getValue()}</StyledTableCell>, // TODO: handle localization
       header: "Type",
     }),
     columnHelper.accessor("balances.current", {
@@ -57,10 +70,37 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
           currencyDisplay: "narrowSymbol",
         }).format(row.getValue() ?? 0);
 
-        return <div className="w-full text-right">{formatted}</div>;
+        return <StyledTableCell className="justify-end">{formatted}</StyledTableCell>;
       },
-      header: () => <div className="w-full text-right">Current Balance</div>,
+      header: () => <StyledTableCell className="justify-end">Current Balance</StyledTableCell>,
       size: 170,
+    }),
+    columnHelper.display({
+      id: "actions",
+      cell: (row) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Button variant="ghost" className="aspect-square p-2">
+              <MoreVerticalIcon />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem>
+              <div className="flex items-center gap-1">
+                <RefreshCcwIcon size={12} />
+                <span>Sync</span>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <div className="flex items-center gap-1">
+                <TrashIcon size={12} />
+                <span>Remove</span>
+              </div>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+      size: 0,
     }),
   ];
 
@@ -69,7 +109,7 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
     data: accounts,
     getCoreRowModel: getCoreRowModel<AccountBaseWithInst>(),
     defaultColumn: {
-      minSize: 80,
+      minSize: 72,
     },
   });
 
@@ -123,7 +163,8 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
         <div className="w-full max-w-[200px]">
           <span className="text-sm text-muted-foreground">Account Type</span>
           <div className="h-1" />
-          <AccountTypesFilter accounts={uniqueAccountTypes} />
+          {/* TODO: key error */}
+          {/* <AccountTypesFilter accounts={uniqueAccountTypes} /> */}
         </div>
       </div>
       <div className="h-8" />

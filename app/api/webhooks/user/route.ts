@@ -1,4 +1,4 @@
-import { createUser } from "@/prisma/queries/users";
+import { createUser } from "@/lib/prisma/queries/users";
 import { WebhookEvent, UserJSON, UserWebhookEvent } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
 import { Webhook } from "svix";

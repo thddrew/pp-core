@@ -1,8 +1,8 @@
 "use server";
 
-import { getAccountsByUserId } from "@/prisma/queries/accounts";
-import { getInstitutionsByUserId } from "@/prisma/queries/institutions";
-import { getUser } from "@/prisma/queries/users";
+import { getAccountsByUserId } from "@/lib/prisma/queries/accounts";
+import { getInstitutionsByUserId } from "@/lib/prisma/queries/institutions";
+import { getUser } from "@/lib/prisma/queries/users";
 import { AccountsGetResponse } from "plaid";
 import { cache } from "react";
 

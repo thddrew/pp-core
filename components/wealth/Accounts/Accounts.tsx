@@ -1,11 +1,11 @@
 import { InitialSearchParams } from "@/lib/getInitialSearchParams";
 import { getPlaidAccountsDetails } from "@/lib/plaid/accounts";
+import { getInstitutionsByUserId } from "@/lib/prisma/queries/institutions";
+import { getCurrentUser } from "@/lib/prisma/queries/users";
 import { AccountBaseWithInst } from "@/lib/types/plaid";
-import { getInstitutionsByUserId } from "@/prisma/queries/institutions";
-import { getCurrentUser } from "@/prisma/queries/users";
 
 import { OpenLinkButton } from "../LinkToken/OpenLinkButton";
-import { SummaryCard } from "../SummaryCard";
+import { AccountCard } from "./AccountCard";
 import { AccountsTable } from "./AccountsTable";
 
 // TODO: add searchParams
@@ -49,14 +49,14 @@ export const AccountsSummary = async () => {
   return (
     <section className="flex gap-3">
       <div className="basis-72">
-        <SummaryCard
+        <AccountCard
           title={
             <span className="flex justify-between text-base font-normal">
               <span>Total Balance</span> <span>{currency}</span>
             </span>
           }>
           <span className="text-2xl font-bold">{balance}</span>
-        </SummaryCard>
+        </AccountCard>
       </div>
     </section>
   );
