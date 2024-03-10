@@ -22,7 +22,11 @@ export const LastSyncedDate = ({ instId }: { instId?: string | null } = {}) => {
     <Tooltip>
       <TooltipTrigger>
         <div className="whitespace-nowrap first-letter:capitalize">
-          {formatRelative(institution.last_sync, new Date())}
+          {institution.sync_job_key ? (
+            <LoaderIcon className="inline-block animate-spin" size={12} />
+          ) : (
+            formatRelative(institution.last_sync, new Date())
+          )}
         </div>
       </TooltipTrigger>
       <TooltipPortal>

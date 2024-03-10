@@ -39,7 +39,11 @@ export const OpenLinkButton = () => {
       let syncJobKey = null;
       if (metadata.institution?.institution_id) {
         try {
-          syncJobKey = await startSyncTransactionsJob(metadata.institution.institution_id, user.id);
+          syncJobKey = await startSyncTransactionsJob({
+            institutionId: metadata.institution?.institution_id,
+            userId: user.id,
+            fullSync: false,
+          });
         } catch (err) {
           // TODO: handle error
           console.error("Error starting sync job", err);

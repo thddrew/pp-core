@@ -2,10 +2,21 @@
 
 import { qstashClient } from "./client";
 
-export const startSyncTransactionsJob = async (instId: string, userId: number) => {
-  const body = {
-    institutionId: instId,
+export type SyncTransactionsJobOptions = {
+  institutionId: string;
+  userId: number;
+  fullSync?: boolean;
+};
+
+export const startSyncTransactionsJob = async ({
+  institutionId,
+  userId,
+  fullSync,
+}: SyncTransactionsJobOptions) => {
+  const body: SyncTransactionsJobOptions = {
+    institutionId,
     userId,
+    fullSync,
   };
   // If you know the public URL of the email API, you can use it directly
   const url = `${process.env.QSTASH_APP_URL}/api/qstash`;

@@ -1,12 +1,13 @@
 import { syncAllTransactionsByInst } from "@/lib/plaid/transactions";
 import { getInstitutionByInstId } from "@/lib/prisma/queries/institutions";
+import { SyncTransactionsJobOptions } from "@/lib/qstash/transactions";
 import { verifySignatureAppRouter } from "@upstash/qstash/dist/nextjs";
 import { NextRequest, NextResponse } from "next/server";
 
 const handler = async (req: NextRequest) => {
-  await new Promise((r) => setTimeout(r, 1000));
+  // await new Promise((r) => setTimeout(r, 1000));
 
-  const res = (await req.json()) as { institutionId: string; userId: number };
+  const res = (await req.json()) as SyncTransactionsJobOptions;
 
   const institution = await getInstitutionByInstId(res.institutionId);
 

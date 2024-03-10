@@ -11,6 +11,7 @@ import { InitialSearchParams } from "@/lib/getInitialSearchParams";
 import { startSyncTransactionsJob } from "@/lib/qstash/transactions";
 import { AccountBaseWithInst } from "@/lib/types/plaid";
 import { cn } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   createColumnHelper,
   useReactTable,
@@ -40,6 +41,7 @@ const StyledTableCell = ({ className, ...props }: HTMLProps<HTMLDivElement>) => 
 export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableProps) => {
   const tableContainer = useRef<HTMLTableElement>(null);
   const columnHelper = createColumnHelper<AccountBaseWithInst>();
+  const queryClient = useQueryClient();
 
   // Important to useMemo here to avoid an infinite re-render
   // const allAccounts = useMemo(() => accounts, [accounts]);
@@ -97,7 +99,14 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
                 const instId = row.row.original.institution_id;
                 if (!instId) return;
 
-                const id = await startSyncTransactionsJob(instId, userId);
+                await startSyncTransactionsJob({
+                  institutionId: instId,
+                  userId,
+                  fullSync: false,
+                });
+                queryClient.invalidateQueries({
+                  queryKey: ["institution", instId],
+                });
                 // TODO: do something with the ID?
               }}>
               <div className="flex items-center gap-1">
