@@ -2,7 +2,7 @@
 
 import { getAccountsByUserId } from "@/lib/prisma/queries/accounts";
 import { getInstitutionsByUserId, updateInstitution } from "@/lib/prisma/queries/institutions";
-import { updateTransactions } from "@/lib/prisma/queries/transactions";
+import { deleteAllTransactionsByInstId, updateTransactions } from "@/lib/prisma/queries/transactions";
 import { Institution } from "@prisma/client";
 import { formatDate, subDays } from "date-fns";
 
@@ -22,6 +22,7 @@ export const getAllTransactionsForUser = async (
 
 // TODO: background jobs queue system
 export const syncAllTransactionsByInst = async (inst: Institution, cursor?: string) => {
+  console.log("Syncing transactions for institution", inst.id);
   const plaidClient = createPlaidClient();
 
   if (!inst.access_token) {
@@ -29,7 +30,12 @@ export const syncAllTransactionsByInst = async (inst: Institution, cursor?: stri
   }
 
   let hasMore = true;
-  let nextCursor: string | undefined = cursor ?? inst.sync_cursor ?? undefined;
+  let nextCursor = cursor;
+
+  if (!cursor) {
+    console.log("Deleting all transactions for institution", inst.id);
+    await deleteAllTransactionsByInstId(inst.institution_id);
+  }
 
   while (hasMore) {
     const response = await plaidClient.transactionsSync({

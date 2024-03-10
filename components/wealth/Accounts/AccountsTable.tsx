@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +22,9 @@ import {
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { MoreVerticalIcon, RefreshCcwIcon, TrashIcon } from "lucide-react";
-import { HTMLProps, useRef } from "react";
+import { HTMLProps, Suspense, useRef } from "react";
+
+import { LastSyncedDate } from "./LastSyncDate";
 
 type AccountsTableProps = {
   accounts: AccountBaseWithInst[];
@@ -85,15 +86,17 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
             <DropdownMenuItem
               onClick={async () => {
                 const instId = row.row.original.institution_id;
-                console.log(instId);
                 if (!instId) return;
 
                 const id = await startSyncTransactionsJob(instId, userId);
-                console.log(id);
+                // TODO: do something with the ID?
               }}>
-              <div className="flex items-center gap-1">
-                <RefreshCcwIcon size={12} />
-                <span>Sync</span>
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-1">
+                  <RefreshCcwIcon size={12} />
+                  <span>Sync</span>
+                </div>
+                <LastSyncedDate instId={row.row.original.institution_id} />
               </div>
             </DropdownMenuItem>
             <DropdownMenuItem>

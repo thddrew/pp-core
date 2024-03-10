@@ -1,3 +1,4 @@
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { InitialSearchParams } from "@/lib/getInitialSearchParams";
 import { getPlaidAccountsDetails } from "@/lib/plaid/accounts";
 import { getInstitutionsByUserId } from "@/lib/prisma/queries/institutions";
@@ -85,5 +86,9 @@ export const AccountsTablesWrapper = async ({ searchParams }: { searchParams: In
     )
   );
 
-  return <AccountsTable userId={user.id} accounts={allAccounts} searchParams={searchParams} />;
+  return (
+    <TooltipProvider>
+      <AccountsTable userId={user.id} accounts={allAccounts} searchParams={searchParams} />
+    </TooltipProvider>
+  );
 };

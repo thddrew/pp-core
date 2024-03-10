@@ -1,7 +1,7 @@
 import type { TransactionsSyncResponse } from "plaid";
 
 import prisma from "../client";
-import { getAccountsByUserId } from "./accounts";
+import { getAccountsByInstitutionId, getAccountsByUserId } from "./accounts";
 
 export const getTransactionsByAccountId = async (account_id: string) => {
   const allTransactions = await prisma.transaction.findMany({
@@ -13,7 +13,6 @@ export const getTransactionsByAccountId = async (account_id: string) => {
   return allTransactions;
 };
 
-// TODO: pagination
 export const getTransactionsByUserId = async (userId: number) => {
   const allAccounts = await getAccountsByUserId(userId);
 
@@ -24,6 +23,33 @@ export const getTransactionsByUserId = async (userId: number) => {
   );
 
   return allTransactions.flatMap((transactions) => (transactions?.length ? transactions : []));
+};
+
+export const deleteAllTransactionsByInstId = async (institution_id: string) => {
+  const allAccounts = await getAccountsByInstitutionId(institution_id);
+
+  const allTransactions = await Promise.all(
+    allAccounts.map(async (account) =>
+      account.account_id ? getTransactionsByAccountId(account.account_id) : null
+    )
+  );
+
+  const transactionIds = allTransactions.flatMap(
+    (transactions) => transactions?.map((transaction) => transaction.transaction_id) ?? []
+  );
+
+  await prisma.transaction.updateMany({
+    where: {
+      transaction_id: {
+        in: transactionIds,
+      },
+    },
+    data: {
+      deletedAt: new Date(),
+    },
+  });
+
+  console.log("Deleted all transactions for institution", institution_id);
 };
 
 export const updateTransactions = async (transactions: TransactionsSyncResponse) => {

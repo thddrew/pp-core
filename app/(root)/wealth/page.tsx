@@ -20,9 +20,11 @@ export default async function Wealth({ searchParams }: { searchParams?: Record<s
         <div className="h-8" />
         <h2 className="text-xl font-bold">Recent Transactions</h2>
         <div className="h-8" />
-        <Transactions searchParams={initialSearchParams} />
-        <div className="h-8" />
-        <LiabilitiesWrapper header="Recent Liabilities" />
+        <Suspense fallback={<Loader2Icon className="animate-spin" />}>
+          <Transactions searchParams={initialSearchParams} />
+        </Suspense>
+        {/* <div className="h-8" /> */}
+        {/* <LiabilitiesWrapper header="Recent Liabilities" /> */}
       </SignedIn>
       <SignedOut>
         <p className="text-gray-400">You must be signed in to access your accounts.</p>

@@ -35,10 +35,11 @@ model Account {
 }
 
 model Transaction {
-  id             Int      @id @default(autoincrement())
+  id             Int       @id @default(autoincrement())
   account_id     String // AccountBase.account_id. This ID might change if the account is removed and re-added.
-  transaction_id String   @unique
-  createdAt      DateTime @default(now())
+  transaction_id String    @unique
+  createdAt      DateTime  @default(now())
+  deletedAt      DateTime?
   amount         Float
   date           String
   name           String
