@@ -21,10 +21,10 @@ export const SideMenu = () => (
           <HomeIcon className="mr-2 size-5" />
           Transactions
         </SideMenuLink>
-        <SideMenuLink href="/wealth/liabilities">
+        {/* <SideMenuLink href="/wealth/liabilities">
           <HomeIcon className="mr-2 size-5" />
           Liabilities
-        </SideMenuLink>
+        </SideMenuLink> */}
       </Suspense>
     </div>
   </nav>

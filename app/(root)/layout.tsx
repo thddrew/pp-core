@@ -8,7 +8,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
 import { ClientProviders } from "../../components/ClientProviders";
-import "./globals.css";
+import "../globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -25,7 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
             <ClientProviders>
               <HydrationOverlay>
-                <main>
+                <main className="mx-auto max-w-screen-2xl">
                   <Header />
                   <div className="h-16" />
                   {children}

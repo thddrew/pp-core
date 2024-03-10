@@ -2,7 +2,7 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { InitialSearchParams } from "@/lib/getInitialSearchParams";
-import { Transaction } from "@prisma/client";
+import { Account, Transaction } from "@prisma/client";
 import {
   createColumnHelper,
   useReactTable,
@@ -19,9 +19,10 @@ type TransactionsTableProps = {
   userId: number;
   searchParams: InitialSearchParams;
   transactions: Transaction[];
+  mappedAccountIds: Record<string, Account>;
 };
 
-export const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
+export const TransactionsTable = ({ transactions, mappedAccountIds }: TransactionsTableProps) => {
   const tableContainer = useRef<HTMLTableElement>(null);
 
   const columnHelper = createColumnHelper<Transaction>();
@@ -36,6 +37,15 @@ export const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
       cell: (row) => row.getValue(), // TODO: handle localization
       header: "Name",
       meta: {
+        size: {
+          flex: 2.5,
+        },
+      },
+    }),
+    columnHelper.accessor("account_id", {
+      cell: (row) => mappedAccountIds[row.getValue()].display_name, // TODO: handle localization
+      header: "Account",
+      meta: {
         size: "auto",
       },
     }),
@@ -44,7 +54,9 @@ export const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
         return <div className="capitalize">{row?.getValue()?.replaceAll("_", " ").toLowerCase()}</div>;
       },
       header: "Category",
-      size: 180,
+      meta: {
+        size: "auto",
+      },
     }),
     columnHelper.accessor("amount", {
       cell: (row) => {
@@ -91,9 +103,7 @@ export const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
     const { meta } = header.column.columnDef;
 
     if (meta && "size" in meta) {
-      return meta.size === "auto"
-        ? { flex: 1, minWidth: header.column.columnDef.minSize }
-        : { width: header.getSize() };
+      return meta.size === "auto" ? { flex: 1, minWidth: header.column.columnDef.minSize } : meta.size;
     }
 
     return { width: header.getSize() };
@@ -103,9 +113,7 @@ export const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
     const { meta } = cell.column.columnDef;
 
     if (meta && "size" in meta) {
-      return meta.size === "auto"
-        ? { flex: 1, minWidth: cell.column.columnDef.minSize }
-        : { width: cell.column.getSize() };
+      return meta.size === "auto" ? { flex: 1, minWidth: cell.column.columnDef.minSize } : meta.size;
     }
 
     return { width: cell.column.getSize() };

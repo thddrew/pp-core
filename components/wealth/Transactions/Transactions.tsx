@@ -20,9 +20,9 @@ export const Transactions = async ({ searchParams }: { searchParams: InitialSear
   const allAccounts = await getAccountsByUserId(user.id);
   const institutions = await getInstitutionsByUserId(user.id);
 
-  const mappedAccountIdsToSubType = allAccounts.reduce<Record<string, string>>((acc, account) => {
+  const mappedAccountIds = allAccounts.reduce<Record<string, Account>>((acc, account) => {
     if (account.account_id) {
-      acc[account.account_id] = account.type ?? "UNKNOWN";
+      acc[account.account_id] = account;
       return acc;
     }
 
@@ -66,7 +66,12 @@ export const Transactions = async ({ searchParams }: { searchParams: InitialSear
         transactions={transactions}
       />
       <div className="h-8" />
-      <TransactionsTable searchParams={searchParams} userId={user.id} transactions={filteredTransactions} />
+      <TransactionsTable
+        searchParams={searchParams}
+        userId={user.id}
+        transactions={filteredTransactions}
+        mappedAccountIds={mappedAccountIds}
+      />
     </>
   );
 };
