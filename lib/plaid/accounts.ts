@@ -3,40 +3,38 @@
 import { getInstitutionsByUserId } from "@/lib/prisma/queries/institutions";
 import { cache } from "react";
 
-import { createPlaidClient } from "./plaid-client";
+import { PlaidClient } from "./plaid-client";
 
 /**
  * Get details for saved accounts
  */
-export const getPlaidAccountsDetails = cache(async (userId: number) => {
+export const getPlaidAccountsDetails = async (userId: number) => {
   try {
     if (!userId) throw new Error("User ID is required");
-    const plaidClient = createPlaidClient();
-
     const institutions = await getInstitutionsByUserId(userId);
 
     const allAccessTokens = institutions
       .map((institution) => institution.access_token)
       .filter(Boolean) as string[];
 
-    const allAccountsDetails = await Promise.all(
+    const promiseRes = await Promise.allSettled(
       allAccessTokens.map(async (token) => {
-        const response = await plaidClient.accountsGet({ access_token: token });
+        const response = await PlaidClient.accountsGet({ access_token: token });
 
         return response.data;
       })
     );
 
-    return allAccountsDetails;
+    return promiseRes.flatMap((res) => (res.status === "fulfilled" ? [res.value] : []));
   } catch (err) {
+    console.log(err);
     return null;
   }
-});
+};
 
 export const getPlaidAccountsByAccessToken = async (access_token: string) => {
-  const plaidClient = createPlaidClient();
   try {
-    const response = await plaidClient.accountsGet({
+    const response = await PlaidClient.accountsGet({
       access_token,
     });
 

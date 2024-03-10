@@ -86,9 +86,17 @@ export const AccountsTablesWrapper = async ({ searchParams }: { searchParams: In
     )
   );
 
+  const filteredAccounts = allAccounts.filter((account) => {
+    if (searchParams.accountType.includes("all")) return true;
+
+    if (account.subtype) {
+      return searchParams.accountType.includes(account.subtype);
+    }
+  });
+
   return (
     <TooltipProvider>
-      <AccountsTable userId={user.id} accounts={allAccounts} searchParams={searchParams} />
+      <AccountsTable userId={user.id} accounts={filteredAccounts} searchParams={searchParams} />
     </TooltipProvider>
   );
 };

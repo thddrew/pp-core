@@ -9,6 +9,7 @@ export const LastSyncedDate = ({ instId }: { instId?: string | null } = {}) => {
   const { data: institution, isLoading } = useQuery({
     queryKey: ["institution", instId],
     queryFn: () => (instId ? getInstitutionByInstId(instId) : null),
+    // TODO: add refetchInterval
   });
 
   if (isLoading)

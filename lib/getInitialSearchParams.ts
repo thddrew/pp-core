@@ -11,8 +11,8 @@ export const getInitialSearchParams = (
 ) => {
   const urlState = {
     search: "",
-    fromDate: defaultDateRanges.last30Days.from.toISOString(),
-    toDate: defaultDateRanges.last30Days.to.toISOString(),
+    fromDate: defaultDateRanges.last60Days.from.toISOString(),
+    toDate: defaultDateRanges.last60Days.to.toISOString(),
     institutions: ["all"],
     account: ["all"],
     accountType: ["all"],

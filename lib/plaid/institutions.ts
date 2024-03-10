@@ -1,10 +1,10 @@
 import { CountryCode } from "plaid";
 
-import { createPlaidClient } from "./plaid-client";
+import { PlaidClient } from "./plaid-client";
 
 export const getPlaidInstitutionDetails = async (institutionId: string, countryCodes: CountryCode[]) => {
   try {
-    const response = await createPlaidClient().institutionsGetById({
+    const response = await PlaidClient.institutionsGetById({
       institution_id: institutionId,
       country_codes: countryCodes,
       options: {

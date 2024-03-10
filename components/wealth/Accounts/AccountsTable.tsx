@@ -38,7 +38,7 @@ const StyledTableCell = ({ className, ...props }: HTMLProps<HTMLDivElement>) => 
   <div {...props} className={cn("flex w-full items-center", className)} />
 );
 
-export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableProps) => {
+export const AccountsTable = ({ accounts, userId }: AccountsTableProps) => {
   const tableContainer = useRef<HTMLTableElement>(null);
   const columnHelper = createColumnHelper<AccountBaseWithInst>();
   const queryClient = useQueryClient();
@@ -198,6 +198,7 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
         <TableHeader className="sticky top-0 z-[1] grid">
           <TableRow className="flex w-full bg-muted hover:bg-muted">
             {table.getFlatHeaders().map((header) => (
+              // @ts-expect-error
               <TableHead key={header.id} className="flex items-center" style={getHeaderWidthStyles(header)}>
                 {flexRender(header.column.columnDef.header, header.getContext())}
               </TableHead>
@@ -222,6 +223,7 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
                   transform: `translateY(${vRow.start}px)`, //this should always be a `style` as it changes on scroll
                 }}>
                 {row.getVisibleCells().map((cell) => (
+                  // @ts-expect-error
                   <TableCell key={cell.id} className="flex" style={getCellWidthStyles(cell)}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>

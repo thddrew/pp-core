@@ -5,6 +5,7 @@ import {
   startOfDay,
   startOfMonth,
   startOfWeek,
+  startOfYear,
   subDays,
   subMonths,
   subWeeks,
@@ -39,6 +40,21 @@ export const defaultDateRanges = {
   last30Days: {
     label: "Last 30 Days",
     from: startOfDay(subDays(new Date(), 30)),
+    to: endOfDay(new Date()),
+  },
+  last60Days: {
+    label: "Last 60 Days",
+    from: startOfDay(subDays(new Date(), 60)),
+    to: endOfDay(new Date()),
+  },
+  thisYear: {
+    label: "This Year",
+    from: startOfYear(new Date()),
+    to: endOfDay(new Date()),
+  },
+  lastYear: {
+    label: "Last Year",
+    from: startOfDay(subMonths(new Date(), 12)),
     to: endOfDay(new Date()),
   },
 };

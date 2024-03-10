@@ -2,8 +2,6 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { InitialSearchParams } from "@/lib/getInitialSearchParams";
-import { SearchParams } from "@/lib/types/SearchParams";
-import { useUrlState } from "@/lib/useUrlState";
 import { Transaction } from "@prisma/client";
 import {
   createColumnHelper,
@@ -15,23 +13,16 @@ import {
   Cell,
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useMemo, useRef } from "react";
-
-import { useTransactionsQuery } from "./useTransactionsQuery";
+import { useRef } from "react";
 
 type TransactionsTableProps = {
   userId: number;
   searchParams: InitialSearchParams;
-  transactions?: Transaction[];
+  transactions: Transaction[];
 };
 
-export const TransactionsTable = ({ userId, searchParams, transactions }: TransactionsTableProps) => {
+export const TransactionsTable = ({ transactions }: TransactionsTableProps) => {
   const tableContainer = useRef<HTMLTableElement>(null);
-  // const { data } = useTransactionsQuery(userId, urlState.fromDate, urlState.toDate);
-  const flatTransactions = useMemo(
-    () => transactions?.sort((a, b) => new Date(a.date).getDate() - new Date(b.date).getDate()) ?? [],
-    [transactions]
-  );
 
   const columnHelper = createColumnHelper<Transaction>();
 
@@ -73,7 +64,7 @@ export const TransactionsTable = ({ userId, searchParams, transactions }: Transa
 
   const table = useReactTable({
     columns,
-    data: flatTransactions,
+    data: transactions,
     getCoreRowModel: getCoreRowModel<Transaction>(),
     defaultColumn: {
       minSize: 80,

@@ -4,7 +4,7 @@ import { createAccount } from "@/lib/prisma/queries/accounts";
 import { auth } from "@clerk/nextjs";
 import { CountryCode, LinkTokenCreateRequest, PlaidError, Products } from "plaid";
 
-import { createPlaidClient } from "./plaid-client";
+import { PlaidClient } from "./plaid-client";
 
 export const getLinkToken = async (products: Products[]) => {
   const { userId } = auth();
@@ -22,7 +22,7 @@ export const getLinkToken = async (products: Products[]) => {
       products,
     };
 
-    const response = await createPlaidClient().linkTokenCreate(request);
+    const response = await PlaidClient.linkTokenCreate(request);
 
     return response.data.link_token;
   } catch (err) {
@@ -37,7 +37,7 @@ export const getLinkToken = async (products: Products[]) => {
  */
 export const exchangePublicToken = async (publicToken: string, userId: number) => {
   try {
-    const response = await createPlaidClient().itemPublicTokenExchange({
+    const response = await PlaidClient.itemPublicTokenExchange({
       public_token: publicToken,
     });
     return response.data.access_token;

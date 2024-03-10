@@ -1,6 +1,6 @@
 import type { TransactionsSyncResponse } from "plaid";
 
-import prisma from "../client";
+import prisma from "../prisma-client";
 import { getAccountsByInstitutionId, getAccountsByUserId } from "./accounts";
 
 export const getTransactionsByAccountId = async (account_id: string) => {

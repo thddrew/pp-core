@@ -1,9 +1,8 @@
 import { Configuration, PlaidApi, PlaidEnvironments } from "plaid";
 
-// TODO: create plaid singleton??
 export const createPlaidClient = () => {
   const configuration = new Configuration({
-    basePath: PlaidEnvironments.sandbox,
+    basePath: PlaidEnvironments.development,
     baseOptions: {
       headers: {
         "PLAID-CLIENT-ID": process.env.PLAID_CLIENT_ID,
@@ -15,3 +14,5 @@ export const createPlaidClient = () => {
 
   return new PlaidApi(configuration);
 };
+
+export const PlaidClient = createPlaidClient();

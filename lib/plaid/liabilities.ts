@@ -2,7 +2,7 @@
 
 import { getAccountById } from "@/lib/prisma/queries/accounts";
 
-import { createPlaidClient } from "./plaid-client";
+import { PlaidClient } from "./plaid-client";
 
 export const getLiabilities = async (plaidAccountId: number) => {
   const plaidAccount = await getAccountById(plaidAccountId);
@@ -11,7 +11,7 @@ export const getLiabilities = async (plaidAccountId: number) => {
   if (!plaidAccount.access_token) throw new Error("Plaid account access token not found");
 
   try {
-    const response = await createPlaidClient().liabilitiesGet({
+    const response = await PlaidClient.liabilitiesGet({
       access_token: plaidAccount.access_token,
     });
 

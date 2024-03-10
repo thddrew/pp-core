@@ -5,7 +5,7 @@
  */
 import type { Prisma } from "@prisma/client";
 
-import prisma from "../client";
+import prisma from "../prisma-client";
 
 /**
  * Create a new stored account

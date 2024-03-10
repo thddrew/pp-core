@@ -2,7 +2,7 @@
 
 import type { Prisma } from "@prisma/client";
 
-import prisma from "../client";
+import prisma from "../prisma-client";
 
 export const createInstitution = async (data: Prisma.InstitutionCreateInput) => {
   const institution = await prisma.institution.create({ data });
