@@ -24,6 +24,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { MoreVerticalIcon, RefreshCcwIcon, TrashIcon } from "lucide-react";
 import { HTMLProps, Suspense, useRef } from "react";
 
+import { AccountTypesFilter } from "../common/filters/AccountTypeFilter";
 import { LastSyncedDate } from "./LastSyncDate";
 
 type AccountsTableProps = {
@@ -45,17 +46,25 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
   const columns = [
     columnHelper.accessor("name", {
       cell: (row) => <StyledTableCell>{row.getValue()}</StyledTableCell>, // TODO: handle localization
-      header: "Name",
-      meta: {
-        size: "auto",
-      },
+      header: "Account name",
+      // meta: {
+      //   size: "auto",
+      // },
+    }),
+    columnHelper.accessor("institution_id", {
+      header: "Last Synced",
+      cell: (row) => (
+        <StyledTableCell>
+          <LastSyncedDate instId={row.row.original.institution_id} />
+        </StyledTableCell>
+      ),
     }),
     columnHelper.accessor("institution_name", {
       cell: (row) => <StyledTableCell>{row.getValue()}</StyledTableCell>, // TODO: handle localization
       header: "Institution",
-      meta: {
-        size: "auto",
-      },
+      // meta: {
+      //   size: "auto",
+      // },
     }),
     columnHelper.accessor("subtype", {
       cell: (row) => <StyledTableCell className="capitalize">{row.getValue()}</StyledTableCell>, // TODO: handle localization
@@ -91,12 +100,9 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
                 const id = await startSyncTransactionsJob(instId, userId);
                 // TODO: do something with the ID?
               }}>
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-1">
-                  <RefreshCcwIcon size={12} />
-                  <span>Sync</span>
-                </div>
-                <LastSyncedDate instId={row.row.original.institution_id} />
+              <div className="flex items-center gap-1">
+                <RefreshCcwIcon size={12} />
+                <span>Sync</span>
               </div>
             </DropdownMenuItem>
             <DropdownMenuItem>
@@ -108,7 +114,9 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
           </DropdownMenuContent>
         </DropdownMenu>
       ),
-      size: 0,
+      meta: {
+        size: 24 + 32,
+      },
     }),
   ];
 
@@ -143,10 +151,11 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
     if (meta && "size" in meta) {
       return meta.size === "auto"
         ? { flex: 1, minWidth: header.column.columnDef.minSize }
-        : { width: header.getSize() };
+        : { width: meta.size };
     }
 
-    return { width: header.getSize() };
+    return { flex: 1 };
+    // return { width: header.getSize() };
   };
 
   const getCellWidthStyles = (cell: Cell<AccountBaseWithInst, unknown>) => {
@@ -155,10 +164,11 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
     if (meta && "size" in meta) {
       return meta.size === "auto"
         ? { flex: 1, minWidth: cell.column.columnDef.minSize }
-        : { width: cell.column.getSize() };
+        : { width: meta.size };
     }
 
-    return { width: cell.column.getSize() };
+    return { flex: 1 };
+    // return { width: cell.column.getSize() };
   };
 
   const uniqueAccountTypes = Array.from(
@@ -171,8 +181,7 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
         <div className="w-full max-w-[200px]">
           <span className="text-sm text-muted-foreground">Account Type</span>
           <div className="h-1" />
-          {/* TODO: key error */}
-          {/* <AccountTypesFilter accounts={uniqueAccountTypes} /> */}
+          <AccountTypesFilter accounts={uniqueAccountTypes} />
         </div>
       </div>
       <div className="h-8" />

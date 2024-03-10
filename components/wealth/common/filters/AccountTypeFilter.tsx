@@ -1,10 +1,11 @@
 import { useUrlState } from "@/lib/useUrlState";
 import { Account } from "@prisma/client";
+import { AccountSubtype } from "plaid";
 
 import { MultiFilter, useMultiFilter } from "./MultiFilter";
 
 type AccountTypesFilterProps = {
-  accounts: Account[];
+  accounts: AccountSubtype[];
 };
 
 export const AccountTypesFilter = ({ accounts }: AccountTypesFilterProps) => {
@@ -12,11 +13,11 @@ export const AccountTypesFilter = ({ accounts }: AccountTypesFilterProps) => {
   const [accountTypeFilters, setAccountTypeFilters] = useMultiFilter(urlState.accountType);
 
   return (
-    <MultiFilter<Account>
+    <MultiFilter<AccountSubtype>
       items={[{ items: accounts }]}
       values={accountTypeFilters}
-      getKey={(item) => String(item.id)}
-      getLabel={(item) => item.display_name}
+      getKey={(item) => String(item)}
+      getLabel={(item) => item}
       onValueChange={(value) => {
         const updatedFilters = setAccountTypeFilters(value);
         setUrlState({

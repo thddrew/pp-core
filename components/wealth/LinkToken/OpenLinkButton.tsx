@@ -36,10 +36,10 @@ export const OpenLinkButton = () => {
 
       if (!user) throw new Error("User not found");
 
-      let syncingJobKey = null;
+      let syncJobKey = null;
       if (metadata.institution?.institution_id) {
         try {
-          syncingJobKey = await startSyncTransactionsJob(metadata.institution.institution_id, user.id);
+          syncJobKey = await startSyncTransactionsJob(metadata.institution.institution_id, user.id);
         } catch (err) {
           // TODO: handle error
           console.error("Error starting sync job", err);
@@ -76,18 +76,18 @@ export const OpenLinkButton = () => {
         ? await getInstitutionByInstId(metadata.institution?.institution_id)
         : null;
 
-      let updatedInstitution = existingInstitution;
-
       if (!existingInstitution) {
-        updatedInstitution = await createInstitution({
+        await createInstitution({
           institution_id: metadata.institution?.institution_id ?? "UNKNOWN",
           name: metadata.institution?.name ?? metadata.institution?.institution_id ?? "UNKNOWN",
           access_token: accessToken,
           userId: user.id,
+          sync_job_key: syncJobKey,
         });
       } else {
-        updatedInstitution = await updateInstitution(existingInstitution.id, {
+        await updateInstitution(existingInstitution.id, {
           access_token: accessToken,
+          sync_job_key: syncJobKey,
         });
       }
 

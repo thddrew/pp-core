@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const buttonClasses = "bg-transparent text-gray-400 hover:bg-transparent hover:text-gray-50";
+const buttonClasses = "bg-transparent text-gray-400 hover:bg-transparent dark:hover:text-gray-50";
 
 type SideMenuLinkProps = {
   href: string;

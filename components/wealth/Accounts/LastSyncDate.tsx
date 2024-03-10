@@ -1,6 +1,8 @@
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getInstitutionByInstId } from "@/lib/prisma/queries/institutions";
+import { TooltipPortal } from "@radix-ui/react-tooltip";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { format, formatRelative } from "date-fns";
 import { LoaderIcon } from "lucide-react";
 
 export const LastSyncedDate = ({ instId }: { instId?: string | null } = {}) => {
@@ -11,16 +13,21 @@ export const LastSyncedDate = ({ instId }: { instId?: string | null } = {}) => {
 
   if (isLoading)
     return (
-      <div className="min-w-[298px]">
-        <div className="text-xs text-muted-foreground">
-          Last synced: <LoaderIcon className="inline-block animate-spin" size={12} />
-        </div>
+      <div className="min-w-[298px] text-xs text-muted-foreground">
+        <LoaderIcon className="inline-block animate-spin" size={12} />
       </div>
     );
 
   return institution?.last_sync ? (
-    <div className="text-xs text-muted-foreground">
-      Last synced: {format(institution.last_sync, "PPPP pp")}
-    </div>
+    <Tooltip>
+      <TooltipTrigger>
+        <div className="whitespace-nowrap first-letter:capitalize">
+          {formatRelative(institution.last_sync, new Date())}
+        </div>
+      </TooltipTrigger>
+      <TooltipPortal>
+        <TooltipContent>{format(institution.last_sync, "PPPP pp")}</TooltipContent>
+      </TooltipPortal>
+    </Tooltip>
   ) : null;
 };

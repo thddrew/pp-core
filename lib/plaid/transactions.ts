@@ -49,7 +49,11 @@ export const syncAllTransactionsByInst = async (inst: Institution, cursor?: stri
     nextCursor = response.data.next_cursor;
   }
 
-  updateInstitution(inst.id, { sync_cursor: nextCursor, last_sync: new Date().toISOString() });
+  updateInstitution(inst.id, {
+    sync_cursor: nextCursor,
+    last_sync: new Date().toISOString(),
+    sync_job_key: null,
+  });
 };
 
 export const syncTransactionsForUser = async (userId: number) => {

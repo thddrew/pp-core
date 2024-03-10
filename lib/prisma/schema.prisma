@@ -58,4 +58,5 @@ model Institution {
   access_token   String?
   sync_cursor    String?
   last_sync      String?
+  sync_job_key   String?
 }
