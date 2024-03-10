@@ -1,5 +1,5 @@
 import { useUrlState } from "@/lib/useUrlState";
-import { Account, Institution, Transaction } from "@prisma/client";
+import { Account, Institution } from "@prisma/client";
 
 import { MultiFilter, useMultiFilter } from "./MultiFilter";
 
@@ -12,20 +12,42 @@ export const AccountsFilter = ({ accounts, institutions }: AccountsFilterProps) 
   const [urlState, setUrlState] = useUrlState();
   const [accountFilters, setAccountFilters] = useMultiFilter(urlState.account);
 
-  const accountOptions = accounts?.map((account) => ({
-    label:
-      institutions?.find((inst) => inst.institution_id === account.institution_id)?.name ??
-      account.institution_id ??
-      "Unknown",
-    items: accounts.filter((acc) => acc.institution_id === account.institution_id),
-  }));
+  const groupedAccounts =
+    accounts?.reduce<Record<string, { label: string; items: Account[] }>>((groups, account) => {
+      const key = account.institution_id;
+
+      if (!key) {
+        groups.unknown = {
+          label: "Unknown",
+          items: groups.unknown ? [...groups.unknown.items, account] : [account],
+        };
+
+        return groups;
+      }
+
+      if (groups[key]) {
+        groups[key].items.push(account);
+      } else {
+        groups[key] = {
+          label:
+            institutions?.find((inst) => inst.institution_id === account.institution_id)?.name ??
+            account.institution_id ??
+            "Unknown",
+          items: [account],
+        };
+      }
+
+      return groups;
+    }, {}) ?? {};
+
+  const groupedAccountsList = Object.values(groupedAccounts);
 
   return (
     <MultiFilter<Account>
-      items={accountOptions}
+      items={groupedAccountsList}
       values={accountFilters}
-      getKey={(item) => item.account_id}
-      getLabel={(item) => item.name}
+      getKey={(item) => String(item.id)}
+      getLabel={(item) => item.display_name}
       onValueChange={(value) => {
         const updatedFilters = setAccountFilters(value);
         setUrlState({

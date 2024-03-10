@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { InitialSearchParams } from "@/lib/getInitialSearchParams";
+import { startSyncTransactionsJob } from "@/lib/qstash/transactions";
 import { AccountBaseWithInst } from "@/lib/types/plaid";
 import { cn } from "@/lib/utils";
 import {
@@ -21,10 +22,8 @@ import {
   Cell,
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { DeleteIcon, MoreVerticalIcon, RefreshCcwIcon, TrashIcon } from "lucide-react";
-import { HTMLProps, useMemo, useRef } from "react";
-
-import { AccountTypesFilter } from "../common/filters/AccountTypeFilter";
+import { MoreVerticalIcon, RefreshCcwIcon, TrashIcon } from "lucide-react";
+import { HTMLProps, useRef } from "react";
 
 type AccountsTableProps = {
   accounts: AccountBaseWithInst[];
@@ -80,12 +79,18 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
       cell: (row) => (
         <DropdownMenu>
           <DropdownMenuTrigger>
-            <Button variant="ghost" className="aspect-square p-2">
-              <MoreVerticalIcon />
-            </Button>
+            <MoreVerticalIcon />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={async () => {
+                const instId = row.row.original.institution_id;
+                console.log(instId);
+                if (!instId) return;
+
+                const id = await startSyncTransactionsJob(instId, userId);
+                console.log(id);
+              }}>
               <div className="flex items-center gap-1">
                 <RefreshCcwIcon size={12} />
                 <span>Sync</span>

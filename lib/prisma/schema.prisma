@@ -5,7 +5,6 @@ datasource db {
   provider  = "postgresql"
   url       = env("DB_TRANSACTION_URI")
   directUrl = env("DB_SESSION_URI")
-  // relationMode = "prisma"
 }
 
 generator client {
@@ -37,11 +36,11 @@ model Account {
 
 model Transaction {
   id             Int      @id @default(autoincrement())
-  account_id     String // AccountBase.account_id
+  account_id     String // AccountBase.account_id. This ID might change if the account is removed and re-added.
   transaction_id String   @unique
   createdAt      DateTime @default(now())
   amount         Float
-  date           DateTime
+  date           String
   name           String
   currency_code  String?
   pending        Boolean
@@ -49,7 +48,7 @@ model Transaction {
 }
 
 model Institution {
-  id             Int       @id @default(autoincrement())
+  id             Int     @id @default(autoincrement())
   institution_id String
   name           String
   userId         Int
@@ -57,5 +56,5 @@ model Institution {
   logo           String?
   access_token   String?
   sync_cursor    String?
-  last_sync      DateTime?
+  last_sync      String?
 }

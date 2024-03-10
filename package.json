@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "storybook": "storybook dev -p 6006",
-    "studio": "prisma studio",
+    "studio": "prisma studio --schema ./lib/prisma/schema.prisma",
     "db:push": "prisma db push --schema ./lib/prisma/schema.prisma",
     "build-storybook": "storybook build",
     "postinstall": "prisma generate --schema ./lib/prisma/schema.prisma"

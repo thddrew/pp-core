@@ -14,7 +14,7 @@ const handler = async (req: NextRequest) => {
     return NextResponse.json({ message: `Institution ${res.institutionId} not found` });
   }
 
-  syncAllTransactionsByInst(institution);
+  await syncAllTransactionsByInst(institution);
 
   return NextResponse.json({
     message: `Syncing transactions for institution ${res.institutionId} and user ${res.userId}`,

@@ -1,11 +1,11 @@
 import { InitialSearchParams } from "@/lib/getInitialSearchParams";
-import { syncTransactionsForUser } from "@/lib/plaid/transactions";
 import { getAccountsByUserId } from "@/lib/prisma/queries/accounts";
 import { getInstitutionsByUserId } from "@/lib/prisma/queries/institutions";
 import { getTransactionsByUserId } from "@/lib/prisma/queries/transactions";
 import { getCurrentUser } from "@/lib/prisma/queries/users";
 
 import { TransactionsFilter } from "./TransactionsFilter";
+import { TransactionsTable } from "./TransactionsTable";
 
 export const Transactions = async ({ searchParams }: { searchParams: InitialSearchParams }) => {
   const user = await getCurrentUser();
@@ -18,8 +18,6 @@ export const Transactions = async ({ searchParams }: { searchParams: InitialSear
   const allAccounts = await getAccountsByUserId(user.id);
   const institutions = await getInstitutionsByUserId(user.id);
 
-  // const syncedTransactions = await syncTransactionsForUser(user.id);
-
   return (
     <>
       <TransactionsFilter
@@ -27,10 +25,10 @@ export const Transactions = async ({ searchParams }: { searchParams: InitialSear
         searchParams={searchParams}
         accounts={allAccounts}
         institutions={institutions}
-        transactions={filteredTransactions}
+        transactions={transactions}
       />
       <div className="h-8" />
-      <TransactionsTable searchParams={searchParams} userId={user.id} transactions={filteredTransactions} />
+      <TransactionsTable searchParams={searchParams} userId={user.id} transactions={transactions} />
     </>
   );
 };

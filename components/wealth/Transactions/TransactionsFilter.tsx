@@ -105,7 +105,7 @@ export const TransactionsFilter = ({
         <div className="w-full max-w-[200px]">
           <span className="text-sm text-muted-foreground">Accounts</span>
           <div className="h-1" />
-          <AccountsFilter transactions={transactions ?? []} institutions={institutions} />
+          <AccountsFilter accounts={accounts} institutions={institutions} />
         </div>
         <div className="w-full max-w-[200px]">
           <span className="text-sm text-muted-foreground">Account Types</span>

@@ -18,10 +18,12 @@ export const getTransactionsByUserId = async (userId: number) => {
   const allAccounts = await getAccountsByUserId(userId);
 
   const allTransactions = await Promise.all(
-    allAccounts.map((account) => (account.account_id ? getTransactionsByAccountId(account.account_id) : null))
+    allAccounts.map(async (account) =>
+      account.account_id ? getTransactionsByAccountId(account.account_id) : null
+    )
   );
 
-  return allTransactions.flatMap((transactions) => (transactions?.length ? [transactions] : []));
+  return allTransactions.flatMap((transactions) => (transactions?.length ? transactions : []));
 };
 
 export const updateTransactions = async (transactions: TransactionsSyncResponse) => {
@@ -63,4 +65,6 @@ export const updateTransactions = async (transactions: TransactionsSyncResponse)
       },
     },
   });
+
+  console.log("Transactions synced");
 };

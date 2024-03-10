@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { InitialSearchParams } from "@/lib/getInitialSearchParams";
 import { SearchParams } from "@/lib/types/SearchParams";
 import { useUrlState } from "@/lib/useUrlState";
+import { Transaction } from "@prisma/client";
 import {
   createColumnHelper,
   useReactTable,
@@ -14,7 +15,6 @@ import {
   Cell,
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { Transaction, TransactionsGetResponse } from "plaid";
 import { useMemo, useRef } from "react";
 
 import { useTransactionsQuery } from "./useTransactionsQuery";
@@ -22,19 +22,14 @@ import { useTransactionsQuery } from "./useTransactionsQuery";
 type TransactionsTableProps = {
   userId: number;
   searchParams: InitialSearchParams;
-  transactions?: TransactionsGetResponse[];
+  transactions?: Transaction[];
 };
 
 export const TransactionsTable = ({ userId, searchParams, transactions }: TransactionsTableProps) => {
-  console.log(transactions);
-  const [urlState, setUrlState] = useUrlState(searchParams);
   const tableContainer = useRef<HTMLTableElement>(null);
   // const { data } = useTransactionsQuery(userId, urlState.fromDate, urlState.toDate);
   const flatTransactions = useMemo(
-    () =>
-      transactions
-        ?.flatMap((account) => account.transactions)
-        .sort((a, b) => new Date(a.date).getDate() - new Date(b.date).getDate()) ?? [],
+    () => transactions?.sort((a, b) => new Date(a.date).getDate() - new Date(b.date).getDate()) ?? [],
     [transactions]
   );
 
@@ -53,9 +48,9 @@ export const TransactionsTable = ({ userId, searchParams, transactions }: Transa
         size: "auto",
       },
     }),
-    columnHelper.accessor("personal_finance_category.primary", {
+    columnHelper.accessor("category", {
       cell: (row) => {
-        return <div className="capitalize">{row.getValue().replaceAll("_", " ").toLowerCase()}</div>;
+        return <div className="capitalize">{row?.getValue()?.replaceAll("_", " ").toLowerCase()}</div>;
       },
       header: "Category",
       size: 180,
