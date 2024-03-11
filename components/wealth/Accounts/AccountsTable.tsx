@@ -26,6 +26,7 @@ import { MoreVerticalIcon, RefreshCcwIcon, TrashIcon } from "lucide-react";
 import { HTMLProps, Suspense, useRef } from "react";
 
 import { AccountTypesFilter } from "../common/filters/AccountTypeFilter";
+import { getCellWidthStyles, getHeaderWidthStyles } from "../common/tables/cellSize";
 import { LastSyncedDate } from "./LastSyncDate";
 
 type AccountsTableProps = {
@@ -124,7 +125,9 @@ export const AccountsTable = ({ accounts, userId }: AccountsTableProps) => {
         </DropdownMenu>
       ),
       meta: {
-        size: 24 + 32,
+        size: {
+          width: 24 + 32,
+        },
       },
     }),
   ];
@@ -152,34 +155,6 @@ export const AccountsTable = ({ accounts, userId }: AccountsTableProps) => {
     overscan: 5,
   });
 
-  // Default cell widths are 150px and cannot be overwritten to be auto-sizing
-  // Therefore, we must manually set auto-sizing if required
-  const getHeaderWidthStyles = (header: Header<AccountBaseWithInst, unknown>) => {
-    const { meta } = header.column.columnDef;
-
-    if (meta && "size" in meta) {
-      return meta.size === "auto"
-        ? { flex: 1, minWidth: header.column.columnDef.minSize }
-        : { width: meta.size };
-    }
-
-    return { flex: 1 };
-    // return { width: header.getSize() };
-  };
-
-  const getCellWidthStyles = (cell: Cell<AccountBaseWithInst, unknown>) => {
-    const { meta } = cell.column.columnDef;
-
-    if (meta && "size" in meta) {
-      return meta.size === "auto"
-        ? { flex: 1, minWidth: cell.column.columnDef.minSize }
-        : { width: meta.size };
-    }
-
-    return { flex: 1 };
-    // return { width: cell.column.getSize() };
-  };
-
   const uniqueAccountTypes = Array.from(
     new Set(accounts.flatMap((account) => (account.subtype ? [account.subtype] : [])))
   );
@@ -198,8 +173,11 @@ export const AccountsTable = ({ accounts, userId }: AccountsTableProps) => {
         <TableHeader className="sticky top-0 z-[1] grid">
           <TableRow className="flex w-full bg-muted hover:bg-muted">
             {table.getFlatHeaders().map((header) => (
-              // @ts-expect-error
-              <TableHead key={header.id} className="flex items-center" style={getHeaderWidthStyles(header)}>
+              <TableHead
+                key={header.id}
+                className="flex items-center"
+                // @ts-expect-error
+                style={getHeaderWidthStyles<AccountBaseWithInst>(header)}>
                 {flexRender(header.column.columnDef.header, header.getContext())}
               </TableHead>
             ))}
@@ -223,8 +201,11 @@ export const AccountsTable = ({ accounts, userId }: AccountsTableProps) => {
                   transform: `translateY(${vRow.start}px)`, //this should always be a `style` as it changes on scroll
                 }}>
                 {row.getVisibleCells().map((cell) => (
-                  // @ts-expect-error
-                  <TableCell key={cell.id} className="flex" style={getCellWidthStyles(cell)}>
+                  <TableCell
+                    key={cell.id}
+                    className="flex"
+                    // @ts-expect-error
+                    style={getCellWidthStyles<AccountBaseWithInst>(cell)}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}

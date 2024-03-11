@@ -7,7 +7,8 @@ import { InitialSearchParams } from "@/lib/getInitialSearchParams";
 import { useUrlState } from "@/lib/useUrlState";
 import { Account, Institution, Transaction } from "@prisma/client";
 import { X } from "lucide-react";
-import { useState } from "react";
+import { AccountSubtype } from "plaid";
+import { useMemo, useState } from "react";
 
 import { AccountTypesFilter } from "../common/filters/AccountTypeFilter";
 import { AccountsFilter } from "../common/filters/AccountsFilter";
@@ -46,6 +47,11 @@ export const TransactionsFilter = ({
 }: TransactionsFilterProps) => {
   const [urlState, setUrlState] = useUrlState(searchParams);
   const [searchTerms, setSearchTerms] = useState(new Set(searchParams?.search?.split(";").filter(Boolean)));
+
+  const accountSubtypes = useMemo(
+    () => Array.from(new Set(accounts?.flatMap((account) => (account.subtype ? [account.subtype] : [])))),
+    [accounts]
+  ) as AccountSubtype[];
 
   return (
     <div>
@@ -110,7 +116,7 @@ export const TransactionsFilter = ({
         <div className="w-full max-w-[200px]">
           <span className="text-sm text-muted-foreground">Account Types</span>
           <div className="h-1" />
-          <AccountTypesFilter accounts={accounts ?? []} />
+          <AccountTypesFilter accounts={accountSubtypes} />
         </div>
       </div>
     </div>

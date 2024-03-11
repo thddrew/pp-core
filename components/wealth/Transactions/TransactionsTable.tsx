@@ -15,6 +15,8 @@ import {
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef } from "react";
 
+import { getCellWidthStyles, getHeaderWidthStyles } from "../common/tables/cellSize";
+
 type TransactionsTableProps = {
   userId: number;
   searchParams: InitialSearchParams;
@@ -31,14 +33,18 @@ export const TransactionsTable = ({ transactions, mappedAccountIds }: Transactio
     columnHelper.accessor("date", {
       cell: (row) => row.getValue(), // TODO: handle localization
       header: "Date",
-      size: 120,
+      meta: {
+        size: {
+          width: 120,
+        },
+      },
     }),
     columnHelper.accessor("name", {
       cell: (row) => row.getValue(), // TODO: handle localization
       header: "Name",
       meta: {
         size: {
-          flex: 2.5,
+          flex: 2,
         },
       },
     }),
@@ -55,7 +61,9 @@ export const TransactionsTable = ({ transactions, mappedAccountIds }: Transactio
       },
       header: "Category",
       meta: {
-        size: "auto",
+        size: {
+          flex: 0.5,
+        },
       },
     }),
     columnHelper.accessor("amount", {
@@ -70,7 +78,11 @@ export const TransactionsTable = ({ transactions, mappedAccountIds }: Transactio
         return <div className="w-full text-right">{formatted}</div>;
       },
       header: () => <div className="w-full text-right">Amount</div>,
-      size: 120,
+      meta: {
+        size: {
+          width: 120,
+        },
+      },
     }),
   ];
 
@@ -97,65 +109,49 @@ export const TransactionsTable = ({ transactions, mappedAccountIds }: Transactio
     overscan: 5,
   });
 
-  // Default cell widths are 150px and cannot be overwritten to be auto-sizing
-  // Therefore, we must manually set auto-sizing if required
-  const getHeaderWidthStyles = (header: Header<Transaction, unknown>) => {
-    const { meta } = header.column.columnDef;
-
-    if (meta && "size" in meta) {
-      return meta.size === "auto" ? { flex: 1, minWidth: header.column.columnDef.minSize } : meta.size;
-    }
-
-    return { width: header.getSize() };
-  };
-
-  const getCellWidthStyles = (cell: Cell<Transaction, unknown>) => {
-    const { meta } = cell.column.columnDef;
-
-    if (meta && "size" in meta) {
-      return meta.size === "auto" ? { flex: 1, minWidth: cell.column.columnDef.minSize } : meta.size;
-    }
-
-    return { width: cell.column.getSize() };
-  };
-
   return (
-    <Table ref={tableContainer} rootClassName="flex-1 grid rounded-md max-h-[1000px]">
-      <TableHeader className="sticky top-0 z-[1] grid bg-background">
-        <TableRow className="flex w-full bg-muted hover:bg-muted">
-          {table.getFlatHeaders().map((header) => (
-            <TableHead key={header.id} className="flex items-center" style={getHeaderWidthStyles(header)}>
-              {flexRender(header.column.columnDef.header, header.getContext())}
-            </TableHead>
-          ))}
-        </TableRow>
-      </TableHeader>
-      <TableBody
-        className="relative grid"
-        style={{
-          height: rowVirtualizer.getTotalSize(),
-        }}>
-        {rowVirtualizer.getVirtualItems().map((vRow) => {
-          const row = rows[vRow.index] as Row<Transaction>;
-
-          return (
-            <TableRow
-              key={row.id}
-              data-index={vRow.index}
-              ref={(node) => rowVirtualizer.measureElement(node)}
-              className="absolute flex w-full"
-              style={{
-                transform: `translateY(${vRow.start}px)`, //this should always be a `style` as it changes on scroll
-              }}>
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} className="flex" style={getCellWidthStyles(cell)}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
+    <div className="w-full overflow-x-auto">
+      <Table ref={tableContainer} rootClassName="flex-1 grid rounded-md max-h-[1000px]">
+        <TableHeader className="sticky top-0 z-[1] grid bg-background">
+          <TableRow className="flex w-full bg-muted hover:bg-muted">
+            {table.getFlatHeaders().map((header) => (
+              <TableHead
+                key={header.id}
+                className="flex items-center"
+                // @ts-expect-error
+                style={getHeaderWidthStyles<Transaction>(header)}>
+                {flexRender(header.column.columnDef.header, header.getContext())}
+              </TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody
+          className="relative grid"
+          style={{
+            height: rowVirtualizer.getTotalSize(),
+          }}>
+          {rowVirtualizer.getVirtualItems().map((vRow) => {
+            const row = rows[vRow.index] as Row<Transaction>;
+            return (
+              <TableRow
+                key={row.id}
+                data-index={vRow.index}
+                ref={(node) => rowVirtualizer.measureElement(node)}
+                className="absolute flex w-full"
+                style={{
+                  transform: `translateY(${vRow.start}px)`, //this should always be a `style` as it changes on scroll
+                }}>
+                {row.getVisibleCells().map((cell) => (
+                  // @ts-expect-error
+                  <TableCell key={cell.id} className="flex" style={getCellWidthStyles<Transaction>(cell)}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
   );
 };

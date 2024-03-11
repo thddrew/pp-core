@@ -5,7 +5,7 @@ import { AccountSubtype } from "plaid";
 import { MultiFilter, useMultiFilter } from "./MultiFilter";
 
 type AccountTypesFilterProps = {
-  accounts: AccountSubtype[];
+  accounts?: AccountSubtype[];
 };
 
 export const AccountTypesFilter = ({ accounts }: AccountTypesFilterProps) => {
@@ -14,10 +14,10 @@ export const AccountTypesFilter = ({ accounts }: AccountTypesFilterProps) => {
 
   return (
     <MultiFilter<AccountSubtype>
-      items={[{ items: accounts }]}
+      items={[{ items: accounts ?? [] }]}
       values={accountTypeFilters}
       getKey={(item) => String(item)}
-      getLabel={(item) => item}
+      getLabel={(item) => item.toUpperCase()}
       onValueChange={(value) => {
         const updatedFilters = setAccountTypeFilters(value);
         setUrlState({
