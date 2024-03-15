@@ -2,6 +2,7 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { InitialSearchParams } from "@/lib/getInitialSearchParams";
+import { useMatchMedia } from "@/lib/hooks/useMatchMedia";
 import { Account, Transaction } from "@prisma/client";
 import {
   createColumnHelper,
@@ -26,6 +27,8 @@ type TransactionsTableProps = {
 
 export const TransactionsTable = ({ transactions, mappedAccountIds }: TransactionsTableProps) => {
   const tableContainer = useRef<HTMLTableElement>(null);
+  // const { matches } = window.matchMedia("(max-width: 1300px)");
+  const { matches } = useMatchMedia("(max-width: 1300px)");
 
   const columnHelper = createColumnHelper<Transaction>();
 
@@ -45,6 +48,7 @@ export const TransactionsTable = ({ transactions, mappedAccountIds }: Transactio
       meta: {
         size: {
           flex: 2,
+          minWidth: 300,
         },
       },
     }),
@@ -52,7 +56,9 @@ export const TransactionsTable = ({ transactions, mappedAccountIds }: Transactio
       cell: (row) => mappedAccountIds[row.getValue()].display_name, // TODO: handle localization
       header: "Account",
       meta: {
-        size: "auto",
+        size: {
+          width: 250,
+        },
       },
     }),
     columnHelper.accessor("category", {
@@ -62,7 +68,7 @@ export const TransactionsTable = ({ transactions, mappedAccountIds }: Transactio
       header: "Category",
       meta: {
         size: {
-          flex: 0.5,
+          width: 150,
         },
       },
     }),
@@ -99,7 +105,7 @@ export const TransactionsTable = ({ transactions, mappedAccountIds }: Transactio
 
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
-    estimateSize: () => 52, //estimate row height for accurate scrollbar dragging
+    estimateSize: () => (matches ? 72 : 52), //estimate row height for accurate scrollbar dragging
     getScrollElement: () => tableContainer.current,
     //measure dynamic row height, except in firefox because it measures table border height incorrectly
     measureElement:
@@ -110,48 +116,46 @@ export const TransactionsTable = ({ transactions, mappedAccountIds }: Transactio
   });
 
   return (
-    <div className="w-full overflow-x-auto">
-      <Table ref={tableContainer} rootClassName="flex-1 grid rounded-md max-h-[1000px]">
-        <TableHeader className="sticky top-0 z-[1] grid bg-background">
-          <TableRow className="flex w-full bg-muted hover:bg-muted">
-            {table.getFlatHeaders().map((header) => (
-              <TableHead
-                key={header.id}
-                className="flex items-center"
+    <Table ref={tableContainer} rootClassName="flex-1 grid rounded-md max-h-[800px]">
+      <TableHeader className="sticky top-0 z-[1] grid bg-background">
+        <TableRow className="flex w-full bg-muted hover:bg-muted">
+          {table.getFlatHeaders().map((header) => (
+            <TableHead
+              key={header.id}
+              className="flex items-center"
+              // @ts-expect-error
+              style={getHeaderWidthStyles<Transaction>(header)}>
+              {flexRender(header.column.columnDef.header, header.getContext())}
+            </TableHead>
+          ))}
+        </TableRow>
+      </TableHeader>
+      <TableBody
+        className="relative grid"
+        style={{
+          height: rowVirtualizer.getTotalSize(),
+        }}>
+        {rowVirtualizer.getVirtualItems().map((vRow) => {
+          const row = rows[vRow.index] as Row<Transaction>;
+          return (
+            <TableRow
+              key={row.id}
+              data-index={vRow.index}
+              ref={(node) => rowVirtualizer.measureElement(node)}
+              className="absolute flex w-full"
+              style={{
+                transform: `translateY(${vRow.start}px)`, //this should always be a `style` as it changes on scroll
+              }}>
+              {row.getVisibleCells().map((cell) => (
                 // @ts-expect-error
-                style={getHeaderWidthStyles<Transaction>(header)}>
-                {flexRender(header.column.columnDef.header, header.getContext())}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody
-          className="relative grid"
-          style={{
-            height: rowVirtualizer.getTotalSize(),
-          }}>
-          {rowVirtualizer.getVirtualItems().map((vRow) => {
-            const row = rows[vRow.index] as Row<Transaction>;
-            return (
-              <TableRow
-                key={row.id}
-                data-index={vRow.index}
-                ref={(node) => rowVirtualizer.measureElement(node)}
-                className="absolute flex w-full"
-                style={{
-                  transform: `translateY(${vRow.start}px)`, //this should always be a `style` as it changes on scroll
-                }}>
-                {row.getVisibleCells().map((cell) => (
-                  // @ts-expect-error
-                  <TableCell key={cell.id} className="flex" style={getCellWidthStyles<Transaction>(cell)}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
+                <TableCell key={cell.id} className="flex" style={getCellWidthStyles<Transaction>(cell)}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </TableCell>
+              ))}
+            </TableRow>
+          );
+        })}
+      </TableBody>
+    </Table>
   );
 };

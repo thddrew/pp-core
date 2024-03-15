@@ -10,9 +10,10 @@ const buttonClasses = "bg-transparent text-gray-400 hover:bg-transparent dark:ho
 type SideMenuLinkProps = {
   href: string;
   children: React.ReactNode;
+  className?: string;
 };
 
-export const SideMenuLink = ({ href, children }: SideMenuLinkProps) => {
+export const SideMenuLink = ({ href, children, className }: SideMenuLinkProps) => {
   const pathname = usePathname();
   const isActive = pathname === href;
 
@@ -20,7 +21,7 @@ export const SideMenuLink = ({ href, children }: SideMenuLinkProps) => {
     <Button
       asChild
       variant={isActive ? "secondary" : "ghost"}
-      className={cn("w-full justify-start", isActive ? "" : buttonClasses)}>
+      className={cn("w-full justify-start", isActive ? "" : buttonClasses, className)}>
       <Link href={href} shallow>
         {children}
       </Link>

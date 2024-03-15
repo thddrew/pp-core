@@ -3,8 +3,8 @@
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DB_TRANSACTION_URI")
-  directUrl = env("DB_SESSION_URI")
+  url       = env("SUPABASE_DATABASE_URL")
+  directUrl = env("SUPABASE_DIRECT_URL")
 }
 
 generator client {
