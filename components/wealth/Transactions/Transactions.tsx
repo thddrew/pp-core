@@ -59,7 +59,7 @@ const filterByInstitutionId = (
 };
 
 const filterBySearchTerms = (transaction: Transaction, searchTerms?: string[]) => {
-  if (!searchTerms) return true;
+  if (!searchTerms || !searchTerms.length) return true;
 
   // Maybe consider fuzzy searching
   const includesMatch = searchTerms.some((term) => transaction.name.toLowerCase().includes(term));
@@ -68,6 +68,7 @@ const filterBySearchTerms = (transaction: Transaction, searchTerms?: string[]) =
 };
 
 export const Transactions = async ({ searchParams }: { searchParams: SearchParams }) => {
+  console.log(searchParams);
   const user = await getCurrentUser();
 
   if (!user) {

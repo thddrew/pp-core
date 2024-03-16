@@ -3,37 +3,34 @@ import { isValid } from "date-fns";
 import { defaultDateRanges } from "./defaultDateRanges";
 import { SearchParams } from "./types/SearchParams";
 
+const defaultState = {
+  search: [],
+  fromDate: defaultDateRanges.last60Days.from.toISOString(),
+  toDate: defaultDateRanges.last60Days.to.toISOString(),
+  institutions: ["all"],
+  account: ["all"],
+  accountType: ["all"],
+};
+
 // Used in page level to set default search params and parse into array of options
 export const parsePageSearchParams = (
   searchParams: Record<string, string> = {},
   initialState: Partial<SearchParams> = {}
 ) => {
   const urlState = {
-    search: [""],
-    fromDate: defaultDateRanges.last60Days.from.toISOString(),
-    toDate: defaultDateRanges.last60Days.to.toISOString(),
-    institutions: ["all"],
-    account: ["all"],
-    accountType: ["all"],
+    ...defaultState,
     ...initialState,
     ...searchParams,
   };
 
-  // TODO: FIX
-  if (typeof searchParams.search === "string" && searchParams.search) {
-    urlState.search = searchParams.search.split(",");
-  }
+  const listKeys = ["search", "institutions", "account", "accountType"] as const;
 
-  if (typeof searchParams.institutions === "string" && searchParams.institutions) {
-    urlState.institutions = searchParams.institutions.split(",");
-  }
-
-  if (typeof searchParams.account === "string" && searchParams.account) {
-    urlState.account = searchParams.account.split(",");
-  }
-
-  if (typeof searchParams.accountType === "string" && searchParams.accountType) {
-    urlState.accountType = searchParams.accountType.split(",");
+  for (const key of listKeys) {
+    if (!searchParams[key]) {
+      urlState[key] = defaultState[key];
+    } else if (typeof searchParams[key] === "string") {
+      urlState[key] = searchParams[key].split(",");
+    }
   }
 
   if (!isValid(new Date(urlState.fromDate)) || !isValid(new Date(urlState.toDate))) {
