@@ -1,8 +1,8 @@
 "use client";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { InitialSearchParams } from "@/lib/getInitialSearchParams";
 import { useMatchMedia } from "@/lib/hooks/useMatchMedia";
+import { SearchParams } from "@/lib/types/SearchParams";
 import { Account, Transaction } from "@prisma/client";
 import {
   createColumnHelper,
@@ -20,7 +20,7 @@ import { getCellWidthStyles, getHeaderWidthStyles } from "../common/tables/cellS
 
 type TransactionsTableProps = {
   userId: number;
-  searchParams: InitialSearchParams;
+  searchParams: SearchParams;
   transactions: Transaction[];
   mappedAccountIds: Record<string, Account>;
 };

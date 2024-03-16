@@ -1,8 +1,8 @@
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { InitialSearchParams } from "@/lib/getInitialSearchParams";
 import { getPlaidAccountsDetails } from "@/lib/plaid/accounts";
 import { getInstitutionsByUserId } from "@/lib/prisma/queries/institutions";
 import { getCurrentUser } from "@/lib/prisma/queries/users";
+import { SearchParams } from "@/lib/types/SearchParams";
 import { AccountBaseWithInst } from "@/lib/types/plaid";
 
 import { OpenLinkButton } from "../LinkToken/OpenLinkButton";
@@ -63,7 +63,7 @@ export const AccountsSummary = async () => {
   );
 };
 
-export const AccountsTablesWrapper = async ({ searchParams }: { searchParams: InitialSearchParams }) => {
+export const AccountsTablesWrapper = async ({ searchParams }: { searchParams: SearchParams }) => {
   const user = await getCurrentUser();
 
   if (!user) return <p className="text-gray-400">User not found</p>;
@@ -87,10 +87,10 @@ export const AccountsTablesWrapper = async ({ searchParams }: { searchParams: In
   );
 
   const filteredAccounts = allAccounts.filter((account) => {
-    if (searchParams.accountType.includes("all")) return true;
+    if (searchParams.accountType?.includes("all")) return true;
 
     if (account.subtype) {
-      return searchParams.accountType.includes(account.subtype);
+      return searchParams.accountType?.includes(account.subtype);
     }
   });
 

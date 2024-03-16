@@ -7,8 +7,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { InitialSearchParams } from "@/lib/getInitialSearchParams";
 import { startSyncTransactionsJob } from "@/lib/qstash/transactions";
+import { SearchParams } from "@/lib/types/SearchParams";
 import { AccountBaseWithInst } from "@/lib/types/plaid";
 import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
@@ -32,14 +32,14 @@ import { LastSyncedDate } from "./LastSyncDate";
 type AccountsTableProps = {
   accounts: AccountBaseWithInst[];
   userId: number;
-  searchParams: InitialSearchParams;
+  searchParams: SearchParams;
 };
 
 const StyledTableCell = ({ className, ...props }: HTMLProps<HTMLDivElement>) => (
   <div {...props} className={cn("flex w-full items-center", className)} />
 );
 
-export const AccountsTable = ({ accounts, userId }: AccountsTableProps) => {
+export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableProps) => {
   const tableContainer = useRef<HTMLTableElement>(null);
   const columnHelper = createColumnHelper<AccountBaseWithInst>();
   const queryClient = useQueryClient();
@@ -165,7 +165,7 @@ export const AccountsTable = ({ accounts, userId }: AccountsTableProps) => {
         <div className="w-full max-w-[200px]">
           <span className="text-sm text-muted-foreground">Account Type</span>
           <div className="h-1" />
-          <AccountTypesFilter accounts={uniqueAccountTypes} />
+          <AccountTypesFilter searchParams={searchParams} accounts={uniqueAccountTypes} />
         </div>
       </div>
       <div className="h-8" />

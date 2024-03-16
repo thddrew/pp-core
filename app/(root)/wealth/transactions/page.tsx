@@ -1,11 +1,11 @@
 import { Transactions } from "@/components/wealth/Transactions/Transactions";
-import { getInitialSearchParams } from "@/lib/getInitialSearchParams";
+import { parsePageSearchParams } from "@/lib/getInitialSearchParams";
 import { SearchParams } from "@/lib/types/SearchParams";
 import { Loader2Icon } from "lucide-react";
 import { Suspense } from "react";
 
 export default async function TransactionsPage({ searchParams }: { searchParams?: Record<string, string> }) {
-  const defaultSearchParams = getInitialSearchParams(searchParams);
+  const defaultSearchParams = parsePageSearchParams(searchParams);
 
   return (
     <section className="flex h-full w-full flex-col p-4">

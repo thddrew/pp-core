@@ -3,12 +3,12 @@ import {
   AccountsSummary,
   AccountsTablesWrapper,
 } from "@/components/wealth/Accounts/Accounts";
-import { getInitialSearchParams } from "@/lib/getInitialSearchParams";
+import { parsePageSearchParams } from "@/lib/getInitialSearchParams";
 import { Loader2Icon } from "lucide-react";
 import { Suspense } from "react";
 
 export default function AccountsPage({ searchParams }: { searchParams: Record<string, string> }) {
-  const initialSearchParams = getInitialSearchParams(searchParams);
+  const initialSearchParams = parsePageSearchParams(searchParams);
 
   return (
     <section className="p-4">

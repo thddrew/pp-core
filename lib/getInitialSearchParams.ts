@@ -3,11 +3,10 @@ import { isValid } from "date-fns";
 import { defaultDateRanges } from "./defaultDateRanges";
 import { SearchParams } from "./types/SearchParams";
 
-export type InitialSearchParams = ReturnType<typeof getInitialSearchParams>;
-
-export const getInitialSearchParams = (
-  searchParams: Record<string, string | string[]> = {},
-  initialState: SearchParams = {}
+// Used in page level to set default search params and parse into array of options
+export const parsePageSearchParams = (
+  searchParams: Record<string, string> = {},
+  initialState: Partial<SearchParams> = {}
 ) => {
   const urlState = {
     search: "",

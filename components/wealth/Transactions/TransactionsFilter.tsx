@@ -3,7 +3,7 @@
 import { DateRangePickerButton } from "@/components/DateRangePickerInput";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { InitialSearchParams } from "@/lib/getInitialSearchParams";
+import { SearchParams } from "@/lib/types/SearchParams";
 import { useUrlState } from "@/lib/useUrlState";
 import { Account, Institution, Transaction } from "@prisma/client";
 import { X } from "lucide-react";
@@ -32,7 +32,7 @@ export const SearchBadges = ({ terms, onRemove }: { terms: string[]; onRemove: (
 
 type TransactionsFilterProps = {
   userId: number;
-  searchParams: InitialSearchParams;
+  searchParams: SearchParams;
   institutions?: Institution[];
   transactions?: Transaction[];
   accounts?: Account[];
@@ -46,6 +46,7 @@ export const TransactionsFilter = ({
   accounts,
 }: TransactionsFilterProps) => {
   const [urlState, setUrlState] = useUrlState(searchParams);
+  console.log(urlState);
   const [searchTerms, setSearchTerms] = useState(new Set(searchParams?.search?.split(";").filter(Boolean)));
 
   const accountSubtypes = useMemo(
@@ -106,17 +107,17 @@ export const TransactionsFilter = ({
         <div className="w-full max-w-[200px]">
           <span className="text-sm text-muted-foreground">Institutions</span>
           <div className="h-1" />
-          <InstitutionsFilter institutions={institutions ?? []} />
+          <InstitutionsFilter searchParams={searchParams} institutions={institutions ?? []} />
         </div>
         <div className="w-full max-w-[200px]">
           <span className="text-sm text-muted-foreground">Accounts</span>
           <div className="h-1" />
-          <AccountsFilter accounts={accounts} institutions={institutions} />
+          <AccountsFilter searchParams={searchParams} accounts={accounts} institutions={institutions} />
         </div>
         <div className="w-full max-w-[200px]">
           <span className="text-sm text-muted-foreground">Account Types</span>
           <div className="h-1" />
-          <AccountTypesFilter accounts={accountSubtypes} />
+          <AccountTypesFilter searchParams={searchParams} accounts={accountSubtypes} />
         </div>
       </div>
     </div>

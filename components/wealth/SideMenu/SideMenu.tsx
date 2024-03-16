@@ -14,7 +14,7 @@ type SideMenuProps = {
 export const SideMenu = ({ onCollapse, isCollapsed }: SideMenuProps) => (
   <nav className="flex h-full flex-col p-4">
     <h2 className={cn("text-xl font-bold", isCollapsed ? "px-0 text-center" : "px-4")}>
-      {isCollapsed ? "W" : "Wealth"}
+      {isCollapsed ? "W" : "W"}
     </h2>
     <div className="h-4" />
     <div className="flex flex-1 flex-col space-y-2">

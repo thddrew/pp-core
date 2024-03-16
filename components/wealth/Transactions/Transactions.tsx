@@ -1,15 +1,64 @@
-import { InitialSearchParams } from "@/lib/getInitialSearchParams";
 import { getAccountsByUserId } from "@/lib/prisma/queries/accounts";
 import { getInstitutionsByUserId } from "@/lib/prisma/queries/institutions";
 import { getTransactionsByUserId } from "@/lib/prisma/queries/transactions";
 import { getCurrentUser } from "@/lib/prisma/queries/users";
+import { SearchParams } from "@/lib/types/SearchParams";
+import { Transaction } from "@/lib/types/prisma";
 import { Account } from "@prisma/client";
 import { isWithinInterval } from "date-fns";
 
 import { TransactionsFilter } from "./TransactionsFilter";
 import { TransactionsTable } from "./TransactionsTable";
 
-export const Transactions = async ({ searchParams }: { searchParams: InitialSearchParams }) => {
+type MappedAccountIds = Record<string, Account>;
+
+const filterByDateRange = (
+  transaction: Transaction,
+  range: {
+    fromDate?: string;
+    toDate?: string;
+  }
+) => {
+  if (range.fromDate && range.toDate) {
+    return isWithinInterval(new Date(transaction.date), {
+      start: new Date(range.fromDate),
+      end: new Date(range.toDate),
+    });
+  }
+
+  // Default to true if range not provided
+  return true;
+};
+
+const filterByAccountType = (
+  transaction: Transaction,
+  mappedAccountIds: MappedAccountIds,
+  accountTypes?: string[]
+) => {
+  if (!accountTypes) return true;
+  // heuristic way to avoid using .includes()
+  if (accountTypes.length === 1 && accountTypes[0] === "all") return true;
+
+  const { subtype } = mappedAccountIds[transaction.account_id];
+
+  return subtype ? accountTypes.includes(subtype) : false;
+};
+
+const filterByInstitutionId = (
+  transaction: Transaction,
+  mappedAccountsIds: MappedAccountIds,
+  institutionsIds?: string[]
+) => {
+  if (!institutionsIds) return true;
+
+  if (institutionsIds.length === 1 && institutionsIds[0] === "all") return true;
+
+  const { institution_id } = mappedAccountsIds[transaction.account_id];
+
+  return institution_id ? institutionsIds.includes(institution_id) : false;
+};
+
+export const Transactions = async ({ searchParams }: { searchParams: SearchParams }) => {
   const user = await getCurrentUser();
 
   if (!user) {
@@ -20,7 +69,7 @@ export const Transactions = async ({ searchParams }: { searchParams: InitialSear
   const allAccounts = await getAccountsByUserId(user.id);
   const institutions = await getInstitutionsByUserId(user.id);
 
-  const mappedAccountIds = allAccounts.reduce<Record<string, Account>>((acc, account) => {
+  const mappedAccountIds = allAccounts.reduce<MappedAccountIds>((acc, account) => {
     if (account.account_id) {
       acc[account.account_id] = account;
       return acc;
@@ -33,25 +82,20 @@ export const Transactions = async ({ searchParams }: { searchParams: InitialSear
     .flatMap((transaction) => {
       if (transaction.deletedAt) return [];
 
-      // Filter by date range
-      if (searchParams.fromDate && searchParams.toDate) {
-        if (
-          isWithinInterval(new Date(transaction.date), {
-            start: new Date(searchParams.fromDate),
-            end: new Date(searchParams.toDate),
-          })
-        ) {
-          return [transaction];
-        }
-      }
+      const withinDateRange = filterByDateRange(transaction, {
+        fromDate: searchParams.fromDate,
+        toDate: searchParams.toDate,
+      });
 
-      // Filter by account type ex. TFSA, Chequing, etc
-      // const transactionAccountType = mappedAccountIdsToSubType[transaction.account_id];
+      const matchesAccountType = filterByAccountType(transaction, mappedAccountIds, searchParams.accountType);
 
-      // if (searchParams.accountType.includes(transactionAccountType)) {
-      //   return [transaction];
-      // }
+      const matchesInstitutionId = filterByInstitutionId(
+        transaction,
+        mappedAccountIds,
+        searchParams.institutions
+      );
 
+      if (withinDateRange && matchesAccountType && matchesInstitutionId) return [transaction];
       return [];
     })
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());

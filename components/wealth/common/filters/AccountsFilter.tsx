@@ -1,3 +1,4 @@
+import { SearchParams } from "@/lib/types/SearchParams";
 import { useUrlState } from "@/lib/useUrlState";
 import { Account, Institution } from "@prisma/client";
 
@@ -6,10 +7,11 @@ import { MultiFilter, useMultiFilter } from "./MultiFilter";
 type AccountsFilterProps = {
   accounts?: Account[];
   institutions?: Institution[];
+  searchParams: SearchParams;
 };
 
-export const AccountsFilter = ({ accounts, institutions }: AccountsFilterProps) => {
-  const [urlState, setUrlState] = useUrlState();
+export const AccountsFilter = ({ accounts, institutions, searchParams }: AccountsFilterProps) => {
+  const [urlState, setUrlState] = useUrlState(searchParams);
   const [accountFilters, setAccountFilters] = useMultiFilter(urlState.account);
 
   const groupedAccounts =

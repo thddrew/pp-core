@@ -2,6 +2,7 @@ import {
   endOfDay,
   endOfMonth,
   endOfWeek,
+  endOfYear,
   startOfDay,
   startOfMonth,
   startOfWeek,
@@ -9,6 +10,7 @@ import {
   subDays,
   subMonths,
   subWeeks,
+  subYears,
 } from "date-fns";
 
 export const defaultDateRanges = {
@@ -54,8 +56,8 @@ export const defaultDateRanges = {
   },
   lastYear: {
     label: "Last Year",
-    from: startOfDay(subMonths(new Date(), 12)),
-    to: endOfDay(new Date()),
+    from: startOfYear(subYears(new Date(), 1)),
+    to: endOfYear(subYears(new Date(), 1)),
   },
 };
 

@@ -1,3 +1,4 @@
+import { SearchParams } from "@/lib/types/SearchParams";
 import { useUrlState } from "@/lib/useUrlState";
 import { Institution } from "@prisma/client";
 
@@ -5,10 +6,11 @@ import { MultiFilter, useMultiFilter } from "./MultiFilter";
 
 type InstitutionsFilterProps = {
   institutions: Institution[];
+  searchParams: SearchParams;
 };
 
-export const InstitutionsFilter = ({ institutions }: InstitutionsFilterProps) => {
-  const [urlState, setUrlState] = useUrlState();
+export const InstitutionsFilter = ({ institutions, searchParams }: InstitutionsFilterProps) => {
+  const [urlState, setUrlState] = useUrlState(searchParams);
   const [institutionFilters, setInstitutionFilters] = useMultiFilter(urlState.institutions);
 
   return (
