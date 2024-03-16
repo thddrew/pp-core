@@ -1,6 +1,5 @@
 import { Transactions } from "@/components/wealth/Transactions/Transactions";
-import { parsePageSearchParams } from "@/lib/getInitialSearchParams";
-import { SearchParams } from "@/lib/types/SearchParams";
+import { parsePageSearchParams } from "@/lib/parsePageSearchParams";
 import { Loader2Icon } from "lucide-react";
 import { Suspense } from "react";
 

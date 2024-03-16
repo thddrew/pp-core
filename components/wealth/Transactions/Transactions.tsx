@@ -58,6 +58,15 @@ const filterByInstitutionId = (
   return institution_id ? institutionsIds.includes(institution_id) : false;
 };
 
+const filterBySearchTerms = (transaction: Transaction, searchTerms?: string[]) => {
+  if (!searchTerms) return true;
+
+  // Maybe consider fuzzy searching
+  const includesMatch = searchTerms.some((term) => transaction.name.toLowerCase().includes(term));
+
+  return includesMatch;
+};
+
 export const Transactions = async ({ searchParams }: { searchParams: SearchParams }) => {
   const user = await getCurrentUser();
 
@@ -95,7 +104,10 @@ export const Transactions = async ({ searchParams }: { searchParams: SearchParam
         searchParams.institutions
       );
 
-      if (withinDateRange && matchesAccountType && matchesInstitutionId) return [transaction];
+      const matchesSearchTerms = filterBySearchTerms(transaction, searchParams.search);
+
+      if (withinDateRange && matchesAccountType && matchesInstitutionId && matchesSearchTerms)
+        return [transaction];
       return [];
     })
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());

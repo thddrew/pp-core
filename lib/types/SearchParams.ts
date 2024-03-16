@@ -1,5 +1,5 @@
 export type SearchParams = {
-  search: string;
+  search: string[];
   fromDate: string;
   toDate: string;
   institutions: string[];

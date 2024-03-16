@@ -46,8 +46,6 @@ export const TransactionsFilter = ({
   accounts,
 }: TransactionsFilterProps) => {
   const [urlState, setUrlState] = useUrlState(searchParams);
-  console.log(urlState);
-  const [searchTerms, setSearchTerms] = useState(new Set(searchParams?.search?.split(";").filter(Boolean)));
 
   const accountSubtypes = useMemo(
     () => Array.from(new Set(accounts?.flatMap((account) => (account.subtype ? [account.subtype] : [])))),
@@ -63,24 +61,21 @@ export const TransactionsFilter = ({
           const value = e.currentTarget.value.trim();
 
           if (e.key === "Enter" && value) {
-            const newTerms = searchTerms.add(value);
-            setUrlState({ ...urlState, search: [...newTerms].join(";") });
-            setSearchTerms(new Set(newTerms));
+            const newTerms = [...urlState.search, value];
+            setUrlState({ ...urlState, search: newTerms });
             e.currentTarget.value = "";
           }
         }}
       />
       <div className="h-2" />
       <SearchBadges
-        terms={[...searchTerms]}
+        terms={urlState.search}
         onRemove={(term) => {
-          const filteredTerms = searchTerms;
-          filteredTerms.delete(term);
+          const filteredTerms = urlState.search.filter((t) => term !== t);
 
-          setSearchTerms(new Set(filteredTerms));
           setUrlState({
             ...urlState,
-            search: [...filteredTerms].join(";"),
+            search: filteredTerms,
           });
         }}
       />

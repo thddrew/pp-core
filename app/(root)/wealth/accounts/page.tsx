@@ -3,7 +3,7 @@ import {
   AccountsSummary,
   AccountsTablesWrapper,
 } from "@/components/wealth/Accounts/Accounts";
-import { parsePageSearchParams } from "@/lib/getInitialSearchParams";
+import { parsePageSearchParams } from "@/lib/parsePageSearchParams";
 import { Loader2Icon } from "lucide-react";
 import { Suspense } from "react";
 

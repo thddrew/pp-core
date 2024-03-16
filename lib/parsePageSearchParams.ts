@@ -9,7 +9,7 @@ export const parsePageSearchParams = (
   initialState: Partial<SearchParams> = {}
 ) => {
   const urlState = {
-    search: "",
+    search: [""],
     fromDate: defaultDateRanges.last60Days.from.toISOString(),
     toDate: defaultDateRanges.last60Days.to.toISOString(),
     institutions: ["all"],
@@ -20,6 +20,10 @@ export const parsePageSearchParams = (
   };
 
   // TODO: FIX
+  if (typeof searchParams.search === "string" && searchParams.search) {
+    urlState.search = searchParams.search.split(",");
+  }
+
   if (typeof searchParams.institutions === "string" && searchParams.institutions) {
     urlState.institutions = searchParams.institutions.split(",");
   }
