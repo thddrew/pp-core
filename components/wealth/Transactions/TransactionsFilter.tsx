@@ -46,7 +46,6 @@ export const TransactionsFilter = ({
   accounts,
 }: TransactionsFilterProps) => {
   const [urlState, setUrlState] = useUrlState(searchParams);
-  console.log(urlState);
 
   const accountSubtypes = useMemo(
     () => Array.from(new Set(accounts?.flatMap((account) => (account.subtype ? [account.subtype] : [])))),

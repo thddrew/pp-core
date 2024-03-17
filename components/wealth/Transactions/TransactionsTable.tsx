@@ -1,6 +1,14 @@
 "use client";
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useMatchMedia } from "@/lib/hooks/useMatchMedia";
 import { SearchParams } from "@/lib/types/SearchParams";
 import { Account, Transaction } from "@prisma/client";
@@ -14,7 +22,7 @@ import {
   Cell,
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 
 import { getCellWidthStyles, getHeaderWidthStyles } from "../common/tables/cellSize";
 
@@ -24,6 +32,12 @@ type TransactionsTableProps = {
   transactions: Transaction[];
   mappedAccountIds: Record<string, Account>;
 };
+
+const CurrencyFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "CAD",
+  currencyDisplay: "narrowSymbol",
+});
 
 export const TransactionsTable = ({ transactions, mappedAccountIds }: TransactionsTableProps) => {
   const tableContainer = useRef<HTMLTableElement>(null);
@@ -75,15 +89,12 @@ export const TransactionsTable = ({ transactions, mappedAccountIds }: Transactio
     columnHelper.accessor("amount", {
       cell: (row) => {
         // Format the amount as a dollar amount
-        const formatted = new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: "CAD",
-          currencyDisplay: "narrowSymbol",
-        }).format(row.getValue());
+        const formatted = CurrencyFormatter.format(row.getValue());
 
         return <div className="w-full text-right">{formatted}</div>;
       },
       header: () => <div className="w-full text-right">Amount</div>,
+      footer: () => <div className="w-full text-right">Footer</div>,
       meta: {
         size: {
           width: 120,
@@ -100,6 +111,13 @@ export const TransactionsTable = ({ transactions, mappedAccountIds }: Transactio
       minSize: 80,
     },
   });
+
+  const sum = useMemo(
+    () => transactions.reduce((sum, transaction) => sum + transaction.amount, 0),
+    [transactions]
+  );
+
+  // console.log(CurrencyFormatter.format(sum));
 
   const { rows } = table.getRowModel();
 
@@ -156,6 +174,7 @@ export const TransactionsTable = ({ transactions, mappedAccountIds }: Transactio
           );
         })}
       </TableBody>
+      {/* TODO: use TableFooter */}
     </Table>
   );
 };
