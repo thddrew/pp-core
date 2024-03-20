@@ -3,9 +3,11 @@ import { getInstitutionsByUserId } from "@/lib/prisma/queries/institutions";
 import { getTransactionsByUserId } from "@/lib/prisma/queries/transactions";
 import { getCurrentUser } from "@/lib/prisma/queries/users";
 import { SearchParams } from "@/lib/types/SearchParams";
-import { Transaction } from "@/lib/types/prisma";
+import { Transaction, User } from "@/lib/types/prisma";
 import { Account } from "@prisma/client";
 import { isWithinInterval } from "date-fns";
+import { Loader2Icon } from "lucide-react";
+import { Suspense } from "react";
 
 import { TransactionsFilter } from "./TransactionsFilter";
 import { TransactionsTable } from "./TransactionsTable";
@@ -67,17 +69,15 @@ const filterBySearchTerms = (transaction: Transaction, searchTerms?: string[]) =
   return includesMatch;
 };
 
-export const Transactions = async ({ searchParams }: { searchParams: SearchParams }) => {
-  console.log(searchParams);
-  const user = await getCurrentUser();
-
-  if (!user) {
-    return <div className="text-gray-400">User not found</div>;
-  }
-
+export const TransactionsTableWrapper = async ({
+  searchParams,
+  user,
+}: {
+  searchParams: SearchParams;
+  user: User;
+}) => {
   const transactions = await getTransactionsByUserId(user.id);
   const allAccounts = await getAccountsByUserId(user.id);
-  const institutions = await getInstitutionsByUserId(user.id);
 
   const mappedAccountIds = allAccounts.reduce<MappedAccountIds>((acc, account) => {
     if (account.account_id) {
@@ -114,21 +114,32 @@ export const Transactions = async ({ searchParams }: { searchParams: SearchParam
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
+    <TransactionsTable
+      searchParams={searchParams}
+      userId={user.id}
+      transactions={filteredTransactions}
+      mappedAccountIds={mappedAccountIds}
+    />
+  );
+};
+
+export const TransactionsWrapper = async ({ searchParams }: { searchParams: SearchParams }) => {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return <div className="text-gray-400">User not found</div>;
+  }
+
+  const allAccounts = await getAccountsByUserId(user.id);
+  const institutions = await getInstitutionsByUserId(user.id);
+
+  return (
     <>
-      <TransactionsFilter
-        userId={user.id}
-        searchParams={searchParams}
-        accounts={allAccounts}
-        institutions={institutions}
-        transactions={transactions}
-      />
+      <TransactionsFilter searchParams={searchParams} accounts={allAccounts} institutions={institutions} />
       <div className="h-8" />
-      <TransactionsTable
-        searchParams={searchParams}
-        userId={user.id}
-        transactions={filteredTransactions}
-        mappedAccountIds={mappedAccountIds}
-      />
+      <Suspense fallback={<Loader2Icon className="animate-spin" />}>
+        <TransactionsTableWrapper searchParams={searchParams} user={user} />
+      </Suspense>
     </>
   );
 };

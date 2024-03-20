@@ -1,8 +1,4 @@
-import {
-  AccountsHeader,
-  AccountsSummary,
-  AccountsTablesWrapper,
-} from "@/components/wealth/Accounts/Accounts";
+import { AccountsHeader, AccountsSummary, AccountsWrapper } from "@/components/wealth/Accounts/Accounts";
 import { parsePageSearchParams } from "@/lib/parsePageSearchParams";
 import { Loader2Icon } from "lucide-react";
 import { Suspense } from "react";
@@ -19,7 +15,7 @@ export default function AccountsPage({ searchParams }: { searchParams: Record<st
       </Suspense>
       <div className="h-16" />
       <Suspense fallback={<Loader2Icon className="animate-spin" />}>
-        <AccountsTablesWrapper searchParams={initialSearchParams} />
+        <AccountsWrapper searchParams={initialSearchParams} />
       </Suspense>
     </section>
   );

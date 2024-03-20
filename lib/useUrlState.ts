@@ -23,7 +23,7 @@ export const useUrlState = (searchParams: SearchParams, initialState: Partial<Se
       ...nextState,
     });
     setUrlState({ ...urlState, ...nextState }); // optimistic update
-    router.push(`${pathname}?${newParams}`);
+    router.replace(`${pathname}?${newParams}`);
   };
 
   return [urlState, setUpdatedState] as const;

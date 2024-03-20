@@ -1,6 +1,6 @@
 import { AccountsHeader, AccountsSummary } from "@/components/wealth/Accounts/Accounts";
 import { LiabilitiesWrapper } from "@/components/wealth/Liabilities/Liabilities";
-import { Transactions } from "@/components/wealth/Transactions/Transactions";
+import { TransactionsTableWrapper } from "@/components/wealth/Transactions/Transactions";
 import { parsePageSearchParams } from "@/lib/parsePageSearchParams";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { Loader2Icon } from "lucide-react";
@@ -21,7 +21,7 @@ export default async function Wealth({ searchParams }: { searchParams?: Record<s
         <h2 className="text-xl font-bold">Recent Transactions</h2>
         <div className="h-8" />
         <Suspense fallback={<Loader2Icon className="animate-spin" />}>
-          <Transactions searchParams={initialSearchParams} />
+          <TransactionsTableWrapper searchParams={initialSearchParams} />
         </Suspense>
         {/* <div className="h-8" /> */}
         {/* <LiabilitiesWrapper header="Recent Liabilities" /> */}

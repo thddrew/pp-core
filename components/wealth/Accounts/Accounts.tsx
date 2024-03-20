@@ -4,8 +4,10 @@ import { getInstitutionsByUserId } from "@/lib/prisma/queries/institutions";
 import { getCurrentUser } from "@/lib/prisma/queries/users";
 import { SearchParams } from "@/lib/types/SearchParams";
 import { AccountBaseWithInst } from "@/lib/types/plaid";
+import { AccountSubtype } from "plaid";
 
 import { OpenLinkButton } from "../LinkToken/OpenLinkButton";
+import { AccountTypesFilter } from "../common/filters/AccountTypeFilter";
 import { AccountCard } from "./AccountCard";
 import { AccountsTable } from "./AccountsTable";
 
@@ -63,7 +65,25 @@ export const AccountsSummary = async () => {
   );
 };
 
-export const AccountsTablesWrapper = async ({ searchParams }: { searchParams: SearchParams }) => {
+export const AccountsFilter = async ({
+  searchParams,
+  accounts,
+}: {
+  searchParams: SearchParams;
+  accounts: AccountSubtype[];
+}) => {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="w-full max-w-[200px]">
+        <span className="text-sm text-muted-foreground">Account Type</span>
+        <div className="h-1" />
+        <AccountTypesFilter searchParams={searchParams} accounts={accounts} />
+      </div>
+    </div>
+  );
+};
+
+export const AccountsWrapper = async ({ searchParams }: { searchParams: SearchParams }) => {
   const user = await getCurrentUser();
 
   if (!user) return <p className="text-gray-400">User not found</p>;
@@ -94,8 +114,14 @@ export const AccountsTablesWrapper = async ({ searchParams }: { searchParams: Se
     }
   });
 
+  const uniqueAccountTypes = Array.from(
+    new Set(allAccounts.flatMap((account) => (account.subtype ? [account.subtype] : [])))
+  );
+
   return (
     <TooltipProvider>
+      <AccountsFilter searchParams={searchParams} accounts={uniqueAccountTypes} />
+      <div className="h-8" />
       <AccountsTable userId={user.id} accounts={filteredAccounts} searchParams={searchParams} />
     </TooltipProvider>
   );

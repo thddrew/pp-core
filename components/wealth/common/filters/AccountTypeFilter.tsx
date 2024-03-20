@@ -1,6 +1,7 @@
+"use client";
+
 import { SearchParams } from "@/lib/types/SearchParams";
 import { useUrlState } from "@/lib/useUrlState";
-import { Account } from "@prisma/client";
 import { AccountSubtype } from "plaid";
 
 import { MultiFilter, useMultiFilter } from "./MultiFilter";

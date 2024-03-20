@@ -25,7 +25,6 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { MoreVerticalIcon, RefreshCcwIcon, TrashIcon } from "lucide-react";
 import { HTMLProps, Suspense, useRef } from "react";
 
-import { AccountTypesFilter } from "../common/filters/AccountTypeFilter";
 import { getCellWidthStyles, getHeaderWidthStyles } from "../common/tables/cellSize";
 import { LastSyncedDate } from "./LastSyncDate";
 
@@ -39,20 +38,15 @@ const StyledTableCell = ({ className, ...props }: HTMLProps<HTMLDivElement>) => 
   <div {...props} className={cn("flex w-full items-center", className)} />
 );
 
-export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableProps) => {
+export const AccountsTable = ({ accounts, userId }: AccountsTableProps) => {
   const tableContainer = useRef<HTMLTableElement>(null);
   const columnHelper = createColumnHelper<AccountBaseWithInst>();
   const queryClient = useQueryClient();
 
-  // Important to useMemo here to avoid an infinite re-render
-  // const allAccounts = useMemo(() => accounts, [accounts]);
   const columns = [
     columnHelper.accessor("name", {
       cell: (row) => <StyledTableCell>{row.getValue()}</StyledTableCell>, // TODO: handle localization
       header: "Account name",
-      // meta: {
-      //   size: "auto",
-      // },
     }),
     columnHelper.accessor("institution_id", {
       header: "Last Synced",
@@ -65,9 +59,6 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
     columnHelper.accessor("institution_name", {
       cell: (row) => <StyledTableCell>{row.getValue()}</StyledTableCell>, // TODO: handle localization
       header: "Institution",
-      // meta: {
-      //   size: "auto",
-      // },
     }),
     columnHelper.accessor("subtype", {
       cell: (row) => <StyledTableCell className="capitalize">{row.getValue()}</StyledTableCell>, // TODO: handle localization
@@ -155,65 +146,51 @@ export const AccountsTable = ({ accounts, userId, searchParams }: AccountsTableP
     overscan: 5,
   });
 
-  const uniqueAccountTypes = Array.from(
-    new Set(accounts.flatMap((account) => (account.subtype ? [account.subtype] : [])))
-  );
-
   return (
-    <>
-      <div className="flex items-center gap-3">
-        <div className="w-full max-w-[200px]">
-          <span className="text-sm text-muted-foreground">Account Type</span>
-          <div className="h-1" />
-          <AccountTypesFilter searchParams={searchParams} accounts={uniqueAccountTypes} />
-        </div>
-      </div>
-      <div className="h-8" />
-      <Table ref={tableContainer} rootClassName="flex-1 grid max-h-[600px] overscroll-contain rounded-md">
-        <TableHeader className="sticky top-0 z-[1] grid">
-          <TableRow className="flex w-full bg-muted hover:bg-muted">
-            {table.getFlatHeaders().map((header) => (
-              <TableHead
-                key={header.id}
-                className="flex items-center"
-                // @ts-expect-error
-                style={getHeaderWidthStyles<AccountBaseWithInst>(header)}>
-                {flexRender(header.column.columnDef.header, header.getContext())}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody
-          className="relative grid"
-          style={{
-            height: rowVirtualizer.getTotalSize(),
-          }}>
-          {rowVirtualizer.getVirtualItems().map((vRow) => {
-            const row = rows[vRow.index] as Row<AccountBaseWithInst>;
+    <Table ref={tableContainer} rootClassName="flex-1 grid max-h-[600px] overscroll-contain rounded-md">
+      <TableHeader className="sticky top-0 z-[1] grid">
+        <TableRow className="flex w-full bg-muted hover:bg-muted">
+          {table.getFlatHeaders().map((header) => (
+            <TableHead
+              key={header.id}
+              className="flex items-center"
+              // @ts-expect-error
+              style={getHeaderWidthStyles<AccountBaseWithInst>(header)}>
+              {flexRender(header.column.columnDef.header, header.getContext())}
+            </TableHead>
+          ))}
+        </TableRow>
+      </TableHeader>
+      <TableBody
+        className="relative grid"
+        style={{
+          height: rowVirtualizer.getTotalSize(),
+        }}>
+        {rowVirtualizer.getVirtualItems().map((vRow) => {
+          const row = rows[vRow.index] as Row<AccountBaseWithInst>;
 
-            return (
-              <TableRow
-                key={row.id}
-                data-index={vRow.index}
-                ref={(node) => rowVirtualizer.measureElement(node)}
-                className="absolute flex w-full"
-                style={{
-                  transform: `translateY(${vRow.start}px)`, //this should always be a `style` as it changes on scroll
-                }}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    className="flex"
-                    // @ts-expect-error
-                    style={getCellWidthStyles<AccountBaseWithInst>(cell)}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </>
+          return (
+            <TableRow
+              key={row.id}
+              data-index={vRow.index}
+              ref={(node) => rowVirtualizer.measureElement(node)}
+              className="absolute flex w-full"
+              style={{
+                transform: `translateY(${vRow.start}px)`, //this should always be a `style` as it changes on scroll
+              }}>
+              {row.getVisibleCells().map((cell) => (
+                <TableCell
+                  key={cell.id}
+                  className="flex"
+                  // @ts-expect-error
+                  style={getCellWidthStyles<AccountBaseWithInst>(cell)}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </TableCell>
+              ))}
+            </TableRow>
+          );
+        })}
+      </TableBody>
+    </Table>
   );
 };

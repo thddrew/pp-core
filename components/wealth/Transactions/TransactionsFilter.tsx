@@ -31,20 +31,12 @@ export const SearchBadges = ({ terms, onRemove }: { terms: string[]; onRemove: (
 );
 
 type TransactionsFilterProps = {
-  userId: number;
   searchParams: SearchParams;
   institutions?: Institution[];
-  transactions?: Transaction[];
   accounts?: Account[];
 };
 
-export const TransactionsFilter = ({
-  userId,
-  searchParams,
-  institutions,
-  transactions,
-  accounts,
-}: TransactionsFilterProps) => {
+export const TransactionsFilter = ({ searchParams, institutions, accounts }: TransactionsFilterProps) => {
   const [urlState, setUrlState] = useUrlState(searchParams);
 
   const accountSubtypes = useMemo(

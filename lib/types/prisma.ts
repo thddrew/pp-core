@@ -7,3 +7,5 @@ export type AccountTypeWithInstName = AccountType & {
 };
 
 export type Transaction = Prisma.$TransactionPayload["scalars"];
+
+export type User = Prisma.$UserPayload["scalars"];
