@@ -15,21 +15,21 @@ type LiabilitiesTableProps = {
 type LiabilitiesObjectKey = keyof LiabilitiesObject | "all";
 
 export const LiabilitiesTable = ({ plaidAccountId }: LiabilitiesTableProps) => {
-  const [urlState, setUrlState] = useUrlState();
-  const { data } = useLiabilitiesQuery(plaidAccountId);
+  // const [urlState, setUrlState] = useUrlState();
+  // const { data } = useLiabilitiesQuery(plaidAccountId);
 
-  const liabilities = data?.liabilities
-    ? {
-        ...data.liabilities,
-        all: Object.values(data.liabilities).flat(),
-      }
-    : {};
+  // const liabilities = data?.liabilities
+  //   ? {
+  //       ...data.liabilities,
+  //       all: Object.values(data.liabilities).flat(),
+  //     }
+  //   : {};
 
-  const categories = Object.keys(liabilities).sort((a, b) => a.localeCompare(b));
+  // const categories = Object.keys(liabilities).sort((a, b) => a.localeCompare(b));
 
-  const currentLiability = (
-    categories.includes(urlState.liabilities) ? urlState.liabilities : "all"
-  ) as LiabilitiesObjectKey;
+  // const currentLiability = (
+  //   categories.includes(urlState.liabilities) ? urlState.liabilities : "all"
+  // ) as LiabilitiesObjectKey;
 
   // const columnHelper = createColumnHelper<LiabilitiesObject>();
 
@@ -47,7 +47,7 @@ export const LiabilitiesTable = ({ plaidAccountId }: LiabilitiesTableProps) => {
 
   return (
     <div>
-      <Select
+      {/* <Select
         value={currentLiability}
         onValueChange={(value) => {
           setUrlState({
@@ -64,7 +64,7 @@ export const LiabilitiesTable = ({ plaidAccountId }: LiabilitiesTableProps) => {
             </SelectItem>
           ))}
         </SelectContent>
-      </Select>
+      </Select> */}
     </div>
   );
 };

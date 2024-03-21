@@ -15,22 +15,24 @@ const Liabilities = async () => {
     return <div className="text-gray-400">User not found</div>;
   }
 
-  if (!user.plaidAccountId) {
-    return <div className="text-gray-400">No account linked</div>;
-  }
+  return null;
 
-  await client.prefetchQuery({
-    queryKey: [PLAID_LIABILITIES_KEY, user.plaidAccountId],
-    queryFn: async () => getLiabilities(user.plaidAccountId as number),
-  });
+  // if (!user.plaidAccountId) {
+  //   return <div className="text-gray-400">No account linked</div>;
+  // }
 
-  return (
-    <section className="flex flex-col gap-3">
-      <HydrationBoundary state={dehydrate(client)}>
-        <LiabilitiesTable plaidAccountId={user.plaidAccountId} />
-      </HydrationBoundary>
-    </section>
-  );
+  // await client.prefetchQuery({
+  //   queryKey: [PLAID_LIABILITIES_KEY, user.plaidAccountId],
+  //   queryFn: async () => getLiabilities(user.plaidAccountId as number),
+  // });
+
+  // return (
+  //   <section className="flex flex-col gap-3">
+  //     <HydrationBoundary state={dehydrate(client)}>
+  //       <LiabilitiesTable plaidAccountId={user.plaidAccountId} />
+  //     </HydrationBoundary>
+  //   </section>
+  // );
 };
 
 type LiabilitiesWrapperProps = {
