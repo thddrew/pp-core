@@ -21,11 +21,13 @@ import {
 import { getCurrentUser, updateUser } from "@/lib/prisma/queries/users";
 import { startSyncTransactionsJob } from "@/lib/qstash/transactions";
 import { DollarSignIcon, Loader2Icon, PiggyBankIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Products } from "plaid";
 import { useEffect, useState } from "react";
 import { usePlaidLink } from "react-plaid-link";
 
 export const OpenLinkButton = () => {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [token, setToken] = useState<string | null>(null);
 
@@ -35,21 +37,6 @@ export const OpenLinkButton = () => {
       const user = await getCurrentUser();
 
       if (!user) throw new Error("User not found");
-
-      let syncJobKey = null;
-      if (metadata.institution?.institution_id) {
-        try {
-          syncJobKey = await startSyncTransactionsJob({
-            institutionId: metadata.institution?.institution_id,
-            userId: user.id,
-            fullSync: false,
-          });
-        } catch (err) {
-          // TODO: handle error
-          console.error("Error starting sync job", err);
-        }
-      }
-
       const newAccounts = await filterDuplicateAccounts(metadata, user.clerkId);
 
       if (!newAccounts.length) {
@@ -79,6 +66,20 @@ export const OpenLinkButton = () => {
       const existingInstitution = metadata.institution?.institution_id
         ? await getInstitutionByInstId(metadata.institution?.institution_id)
         : null;
+
+      let syncJobKey = null;
+      if (metadata.institution?.institution_id) {
+        try {
+          syncJobKey = await startSyncTransactionsJob({
+            institutionId: metadata.institution?.institution_id,
+            userId: user.id,
+            fullSync: false,
+          });
+        } catch (err) {
+          // TODO: handle error
+          console.error("Error starting sync job", err);
+        }
+      }
 
       if (!existingInstitution) {
         await createInstitution({
@@ -110,6 +111,8 @@ export const OpenLinkButton = () => {
           official_name: account.official_name,
         }))
       );
+
+      router.refresh();
     },
     token,
   });
@@ -121,7 +124,6 @@ export const OpenLinkButton = () => {
     if (token) {
       setToken(token);
     }
-    setLoading(false);
   };
 
   useEffect(() => {

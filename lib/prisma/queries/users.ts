@@ -20,8 +20,7 @@ export const getUser = async (id: number) => {
 };
 
 export const getCurrentUser = async () => {
-  // const { userId } = auth();
-  const userId = "user_2ctNt7zkWMPb0q14tdJ9d5wTNFK";
+  const { userId } = auth();
 
   if (!userId) return null;
 

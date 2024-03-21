@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
-import { useState, ReactNode } from "react";
+import { useState, ReactNode, Fragment } from "react";
 
 type Checked = DropdownMenuCheckboxItemProps["checked"];
 
@@ -94,8 +94,9 @@ export function MultiFilter<Item>({
             All
           </DropdownMenuCheckboxItem>
         )}
-        {items.map((group) => (
-          <>
+        {items.map((group, groupIdx) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: This is a temporary fix
+          <Fragment key={groupIdx}>
             {group.label && <DropdownMenuLabel key={group.label}>{group.label}</DropdownMenuLabel>}
             {group.items.map((item) => {
               const id = getKey(item);
@@ -114,7 +115,7 @@ export function MultiFilter<Item>({
                 </DropdownMenuCheckboxItem>
               );
             })}
-          </>
+          </Fragment>
         ))}
       </DropdownMenuContent>
     </DropdownMenu>

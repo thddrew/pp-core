@@ -85,13 +85,12 @@ export const AccountsFilter = async ({
 
 export const AccountsWrapper = async ({ searchParams }: { searchParams: SearchParams }) => {
   const user = await getCurrentUser();
-
   if (!user) return <p className="text-gray-400">User not found</p>;
 
   const accounts = await getPlaidAccountsDetails(user.id);
-  const institutions = await getInstitutionsByUserId(user.id);
-
   if (!accounts) return <p className="text-gray-400">No accounts found</p>;
+
+  const institutions = await getInstitutionsByUserId(user.id);
 
   const allAccounts = accounts.flatMap<AccountBaseWithInst>((account) =>
     account.accounts.map(
