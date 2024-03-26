@@ -103,7 +103,7 @@ export const TransactionsFilter = ({ searchParams, institutions, accounts }: Tra
         <div className="w-full max-w-[200px]">
           <span className="text-sm text-muted-foreground">Account Types</span>
           <div className="h-1" />
-          <AccountTypesFilter searchParams={searchParams} accounts={accountSubtypes} />
+          <AccountTypesFilter searchParams={searchParams} accountTypes={accountSubtypes} />
         </div>
       </div>
     </div>

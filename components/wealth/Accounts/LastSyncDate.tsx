@@ -21,8 +21,8 @@ export const LastSyncedDate = ({ instId }: { instId?: string | null } = {}) => {
 
   return institution?.last_sync ? (
     <Tooltip>
-      <TooltipTrigger>
-        <div className="whitespace-nowrap first-letter:capitalize">
+      <TooltipTrigger asChild>
+        <div className="first-letter:capitalize">
           {institution.sync_job_key ? (
             <LoaderIcon className="inline-block animate-spin" size={12} />
           ) : (

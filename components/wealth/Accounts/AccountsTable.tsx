@@ -9,27 +9,23 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { startSyncTransactionsJob } from "@/lib/qstash/transactions";
 import { SearchParams } from "@/lib/types/SearchParams";
-import { AccountBaseWithInst } from "@/lib/types/plaid";
+import { AccountType } from "@/lib/types/prisma";
 import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  createColumnHelper,
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
-  Row,
-  Header,
-  Cell,
-} from "@tanstack/react-table";
+import { createColumnHelper, useReactTable, getCoreRowModel, flexRender, Row } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { MoreVerticalIcon, RefreshCcwIcon, TrashIcon } from "lucide-react";
-import { HTMLProps, Suspense, useRef } from "react";
+import { HTMLProps, useRef } from "react";
 
 import { getCellWidthStyles, getHeaderWidthStyles } from "../common/tables/cellSize";
 import { LastSyncedDate } from "./LastSyncDate";
 
+type AccountTypeWithInst = AccountType & {
+  institution_name: string;
+};
+
 type AccountsTableProps = {
-  accounts: AccountBaseWithInst[];
+  accounts: AccountTypeWithInst[];
   userId: number;
   searchParams: SearchParams;
 };
@@ -40,43 +36,61 @@ const StyledTableCell = ({ className, ...props }: HTMLProps<HTMLDivElement>) => 
 
 export const AccountsTable = ({ accounts, userId }: AccountsTableProps) => {
   const tableContainer = useRef<HTMLTableElement>(null);
-  const columnHelper = createColumnHelper<AccountBaseWithInst>();
+  const columnHelper = createColumnHelper<AccountTypeWithInst>();
   const queryClient = useQueryClient();
 
   const columns = [
-    columnHelper.accessor("name", {
+    columnHelper.accessor("display_name", {
       cell: (row) => <StyledTableCell>{row.getValue()}</StyledTableCell>, // TODO: handle localization
       header: "Account name",
+      meta: {
+        size: {
+          flex: 2,
+          minWidth: 300,
+        },
+      },
     }),
     columnHelper.accessor("institution_id", {
       header: "Last Synced",
+
       cell: (row) => (
         <StyledTableCell>
           <LastSyncedDate instId={row.row.original.institution_id} />
         </StyledTableCell>
       ),
+      meta: {
+        size: "auto",
+      },
     }),
     columnHelper.accessor("institution_name", {
       cell: (row) => <StyledTableCell>{row.getValue()}</StyledTableCell>, // TODO: handle localization
       header: "Institution",
+      meta: {
+        size: "auto",
+      },
     }),
     columnHelper.accessor("subtype", {
       cell: (row) => <StyledTableCell className="capitalize">{row.getValue()}</StyledTableCell>, // TODO: handle localization
       header: "Type",
+      meta: {
+        size: "auto",
+      },
     }),
-    columnHelper.accessor("balances.current", {
+    columnHelper.accessor("current_balance", {
       cell: (row) => {
         // Format the amount as a dollar amount
         const formatted = new Intl.NumberFormat("en-US", {
           style: "currency",
-          currency: row.row.original.balances.iso_currency_code ?? "CAD",
+          currency: row.row.original.currency_code ?? "CAD",
           currencyDisplay: "narrowSymbol",
         }).format(row.getValue() ?? 0);
 
         return <StyledTableCell className="justify-end">{formatted}</StyledTableCell>;
       },
-      header: () => <StyledTableCell className="justify-end">Current Balance</StyledTableCell>,
-      size: 170,
+      header: () => <StyledTableCell className="justify-end">Balance</StyledTableCell>,
+      meta: {
+        size: "auto",
+      },
     }),
     columnHelper.display({
       id: "actions",
@@ -126,7 +140,7 @@ export const AccountsTable = ({ accounts, userId }: AccountsTableProps) => {
   const table = useReactTable({
     columns,
     data: accounts,
-    getCoreRowModel: getCoreRowModel<AccountBaseWithInst>(),
+    getCoreRowModel: getCoreRowModel<AccountTypeWithInst>(),
     defaultColumn: {
       minSize: 72,
     },
@@ -155,7 +169,7 @@ export const AccountsTable = ({ accounts, userId }: AccountsTableProps) => {
               key={header.id}
               className="flex items-center"
               // @ts-expect-error
-              style={getHeaderWidthStyles<AccountBaseWithInst>(header)}>
+              style={getHeaderWidthStyles<AccountTypeWithInst>(header)}>
               {flexRender(header.column.columnDef.header, header.getContext())}
             </TableHead>
           ))}
@@ -167,7 +181,7 @@ export const AccountsTable = ({ accounts, userId }: AccountsTableProps) => {
           height: rowVirtualizer.getTotalSize(),
         }}>
         {rowVirtualizer.getVirtualItems().map((vRow) => {
-          const row = rows[vRow.index] as Row<AccountBaseWithInst>;
+          const row = rows[vRow.index] as Row<AccountTypeWithInst>;
 
           return (
             <TableRow
@@ -183,7 +197,7 @@ export const AccountsTable = ({ accounts, userId }: AccountsTableProps) => {
                   key={cell.id}
                   className="flex"
                   // @ts-expect-error
-                  style={getCellWidthStyles<AccountBaseWithInst>(cell)}>
+                  style={getCellWidthStyles<AccountTypeWithInst>(cell)}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}

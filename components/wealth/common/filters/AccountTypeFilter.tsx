@@ -2,22 +2,21 @@
 
 import { SearchParams } from "@/lib/types/SearchParams";
 import { useUrlState } from "@/lib/useUrlState";
-import { AccountSubtype } from "plaid";
 
 import { MultiFilter, useMultiFilter } from "./MultiFilter";
 
 type AccountTypesFilterProps = {
-  accounts?: AccountSubtype[];
+  accountTypes?: string[];
   searchParams: SearchParams;
 };
 
-export const AccountTypesFilter = ({ accounts, searchParams }: AccountTypesFilterProps) => {
+export const AccountTypesFilter = ({ accountTypes, searchParams }: AccountTypesFilterProps) => {
   const [urlState, setUrlState] = useUrlState(searchParams);
   const [accountTypeFilters, setAccountTypeFilters] = useMultiFilter(urlState.accountType);
 
   return (
-    <MultiFilter<AccountSubtype>
-      items={[{ items: accounts ?? [] }]}
+    <MultiFilter<string>
+      items={[{ items: accountTypes ?? [] }]}
       values={accountTypeFilters}
       getKey={(item) => String(item)}
       getLabel={(item) => item.toUpperCase()}

@@ -30,3 +30,37 @@ export const startSyncTransactionsJob = async ({
 
   return res.messageId;
 };
+
+export type ScheduleSyncTransactionsJobOptions = SyncTransactionsJobOptions & {
+  cron: string;
+};
+
+export const scheduleSyncTransactionsJob = async ({
+  institutionId,
+  userId,
+  fullSync,
+  cron,
+}: ScheduleSyncTransactionsJobOptions) => {
+  const body: SyncTransactionsJobOptions = {
+    institutionId,
+    userId,
+    fullSync,
+  };
+
+  const url = `${process.env.QSTASH_APP_URL}/api/qstash`;
+
+  const schedule = await qstashClient.schedules.create({
+    body: JSON.stringify(body),
+    destination: url,
+    cron,
+  });
+
+  return schedule.scheduleId;
+};
+
+export const scheduleDailySyncTransactionsJob = async (options: SyncTransactionsJobOptions) => {
+  return scheduleSyncTransactionsJob({
+    ...options,
+    cron: "0 0 * * *",
+  });
+};

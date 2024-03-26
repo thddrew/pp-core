@@ -1,5 +1,4 @@
 import type { TransactionsSyncResponse } from "plaid";
-import { cache } from "react";
 
 import prisma from "../prisma-client";
 import { getAccountsByInstitutionId, getAccountsByUserId } from "./accounts";
@@ -14,7 +13,7 @@ export const getTransactionsByAccountId = async (account_id: string) => {
   return allTransactions;
 };
 
-export const getTransactionsByUserId = cache(async (userId: number) => {
+export const getTransactionsByUserId = async (userId: number) => {
   const allAccounts = await getAccountsByUserId(userId);
 
   const allTransactions = await Promise.all(
@@ -24,7 +23,7 @@ export const getTransactionsByUserId = cache(async (userId: number) => {
   );
 
   return allTransactions.flatMap((transactions) => (transactions?.length ? transactions : []));
-});
+};
 
 export const deleteAllTransactionsByInstId = async (institution_id: string) => {
   const allAccounts = await getAccountsByInstitutionId(institution_id);
