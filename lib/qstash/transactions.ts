@@ -1,5 +1,6 @@
 "use server";
 
+import { updateInstitution } from "../prisma/queries/institutions";
 import { qstashClient } from "./client";
 
 export type SyncTransactionsJobOptions = {

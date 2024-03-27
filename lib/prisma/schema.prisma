@@ -49,14 +49,15 @@ model Transaction {
 }
 
 model Institution {
-  id             Int     @id @default(autoincrement())
-  institution_id String
-  name           String
-  userId         Int
-  url            String?
-  logo           String?
-  access_token   String?
-  sync_cursor    String?
-  last_sync      String?
-  sync_job_key   String?
+  id                 Int     @id @default(autoincrement())
+  institution_id     String
+  name               String
+  userId             Int
+  url                String?
+  logo               String?
+  access_token       String?
+  sync_cursor        String?
+  last_sync          String?
+  sync_job_key       String?
+  scheduled_sync_key String?
 }

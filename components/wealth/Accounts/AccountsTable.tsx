@@ -7,7 +7,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { startSyncTransactionsJob } from "@/lib/qstash/transactions";
+import { getInstitutionByInstId, updateInstitution } from "@/lib/prisma/queries/institutions";
+import { scheduleDailySyncTransactionsJob, startSyncTransactionsJob } from "@/lib/qstash/transactions";
 import { SearchParams } from "@/lib/types/SearchParams";
 import { AccountType } from "@/lib/types/prisma";
 import { cn } from "@/lib/utils";
@@ -16,6 +17,7 @@ import { createColumnHelper, useReactTable, getCoreRowModel, flexRender, Row } f
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { MoreVerticalIcon, RefreshCcwIcon, TrashIcon } from "lucide-react";
 import { HTMLProps, useRef } from "react";
+import { toast } from "sonner";
 
 import { getCellWidthStyles, getHeaderWidthStyles } from "../common/tables/cellSize";
 import { LastSyncedDate } from "./LastSyncDate";
@@ -50,24 +52,12 @@ export const AccountsTable = ({ accounts, userId }: AccountsTableProps) => {
         },
       },
     }),
-    columnHelper.accessor("institution_id", {
-      header: "Last Synced",
-
-      cell: (row) => (
-        <StyledTableCell>
-          <LastSyncedDate instId={row.row.original.institution_id} />
-        </StyledTableCell>
-      ),
-      meta: {
-        size: "auto",
-      },
-    }),
     columnHelper.accessor("institution_name", {
       cell: (row) => <StyledTableCell>{row.getValue()}</StyledTableCell>, // TODO: handle localization
       header: "Institution",
       meta: {
         size: {
-          width: 150,
+          width: 200,
         },
       },
     }),
@@ -78,6 +68,17 @@ export const AccountsTable = ({ accounts, userId }: AccountsTableProps) => {
         size: {
           width: 150,
         },
+      },
+    }),
+    columnHelper.accessor("institution_id", {
+      header: () => <StyledTableCell className="justify-center">Last Synced</StyledTableCell>,
+      cell: (row) => (
+        <StyledTableCell className="justify-center">
+          <LastSyncedDate instId={row.row.original.institution_id} userId={userId} />
+        </StyledTableCell>
+      ),
+      meta: {
+        size: "auto",
       },
     }),
     columnHelper.accessor("current_balance", {
@@ -109,17 +110,37 @@ export const AccountsTable = ({ accounts, userId }: AccountsTableProps) => {
             <DropdownMenuItem
               onClick={async () => {
                 const instId = row.row.original.institution_id;
-                if (!instId) return;
+                if (!instId) {
+                  toast.error(`Institution ${instId} not found`);
+                  return;
+                }
 
-                await startSyncTransactionsJob({
+                const inst = await getInstitutionByInstId(instId, userId);
+
+                if (!inst) {
+                  toast.error(`Institution ${instId} not found`);
+                  return;
+                }
+
+                const syncJobKey = await startSyncTransactionsJob({
                   institutionId: instId,
                   userId,
                   fullSync: false,
                 });
-                queryClient.invalidateQueries({
-                  queryKey: ["institution", instId],
+
+                const scheduleSyncKey = await scheduleDailySyncTransactionsJob({
+                  institutionId: instId,
+                  userId,
                 });
-                // TODO: do something with the ID?
+
+                await updateInstitution(inst.id, {
+                  sync_job_key: syncJobKey,
+                  scheduled_sync_key: scheduleSyncKey,
+                });
+
+                queryClient.invalidateQueries({
+                  queryKey: ["institution", instId, userId],
+                });
               }}>
               <div className="flex items-center gap-1">
                 <RefreshCcwIcon size={12} />

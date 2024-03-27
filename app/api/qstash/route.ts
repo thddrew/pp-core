@@ -5,11 +5,9 @@ import { verifySignatureAppRouter } from "@upstash/qstash/dist/nextjs";
 import { NextRequest, NextResponse } from "next/server";
 
 const handler = async (req: NextRequest) => {
-  // await new Promise((r) => setTimeout(r, 1000));
-
   const res = (await req.json()) as SyncTransactionsJobOptions;
 
-  const institution = await getInstitutionByInstId(res.institutionId);
+  const institution = await getInstitutionByInstId(res.institutionId, res.userId);
 
   if (!institution) {
     return NextResponse.json({ message: `Institution ${res.institutionId} not found` });

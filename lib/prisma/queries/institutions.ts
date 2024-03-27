@@ -22,8 +22,8 @@ export const getInstitutionById = async (id: number) => {
   return institution;
 };
 
-export const getInstitutionByInstId = async (institution_id: string) => {
-  const institution = await prisma.institution.findFirst({ where: { institution_id } });
+export const getInstitutionByInstId = async (institution_id: string, userId: number) => {
+  const institution = await prisma.institution.findFirst({ where: { institution_id, userId } });
 
   return institution;
 };

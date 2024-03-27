@@ -19,7 +19,7 @@ import {
   updateInstitution,
 } from "@/lib/prisma/queries/institutions";
 import { getCurrentUser, updateUser } from "@/lib/prisma/queries/users";
-import { startSyncTransactionsJob } from "@/lib/qstash/transactions";
+import { scheduleDailySyncTransactionsJob, startSyncTransactionsJob } from "@/lib/qstash/transactions";
 import { DollarSignIcon, Loader2Icon, PiggyBankIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Products } from "plaid";
@@ -64,16 +64,24 @@ export const OpenLinkButton = () => {
       );
 
       const existingInstitution = metadata.institution?.institution_id
-        ? await getInstitutionByInstId(metadata.institution?.institution_id)
+        ? await getInstitutionByInstId(metadata.institution?.institution_id, user.id)
         : null;
 
       let syncJobKey = null;
+      let scheduledSyncKey = null;
       if (metadata.institution?.institution_id) {
+        const institutionId = metadata.institution?.institution_id;
+
         try {
           syncJobKey = await startSyncTransactionsJob({
-            institutionId: metadata.institution?.institution_id,
+            institutionId,
             userId: user.id,
             fullSync: false,
+          });
+
+          scheduledSyncKey = await scheduleDailySyncTransactionsJob({
+            institutionId,
+            userId: user.id,
           });
         } catch (err) {
           // TODO: handle error
@@ -88,11 +96,13 @@ export const OpenLinkButton = () => {
           access_token: accessToken,
           userId: user.id,
           sync_job_key: syncJobKey,
+          scheduled_sync_key: scheduledSyncKey,
         });
       } else {
         await updateInstitution(existingInstitution.id, {
           access_token: accessToken,
           sync_job_key: syncJobKey,
+          scheduled_sync_key: scheduledSyncKey,
         });
       }
 
