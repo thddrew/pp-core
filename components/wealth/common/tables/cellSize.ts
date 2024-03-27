@@ -9,7 +9,7 @@ export const getHeaderWidthStyles = <T>(header: Header<T, unknown>) => {
     return meta.size === "auto" ? { flex: 1, minWidth: header.column.columnDef.minSize } : meta.size;
   }
 
-  return { flex: 1 };
+  return header.getSize();
 };
 
 export const getCellWidthStyles = <T>(cell: Cell<T, unknown>) => {
@@ -19,5 +19,5 @@ export const getCellWidthStyles = <T>(cell: Cell<T, unknown>) => {
     return meta.size === "auto" ? { flex: 1, minWidth: cell.column.columnDef.minSize } : meta.size;
   }
 
-  return { flex: 1 };
+  return cell.column.getSize();
 };

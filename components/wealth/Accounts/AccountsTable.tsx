@@ -66,14 +66,18 @@ export const AccountsTable = ({ accounts, userId }: AccountsTableProps) => {
       cell: (row) => <StyledTableCell>{row.getValue()}</StyledTableCell>, // TODO: handle localization
       header: "Institution",
       meta: {
-        size: "auto",
+        size: {
+          width: 150,
+        },
       },
     }),
     columnHelper.accessor("subtype", {
       cell: (row) => <StyledTableCell className="capitalize">{row.getValue()}</StyledTableCell>, // TODO: handle localization
       header: "Type",
       meta: {
-        size: "auto",
+        size: {
+          width: 150,
+        },
       },
     }),
     columnHelper.accessor("current_balance", {
@@ -89,7 +93,9 @@ export const AccountsTable = ({ accounts, userId }: AccountsTableProps) => {
       },
       header: () => <StyledTableCell className="justify-end">Balance</StyledTableCell>,
       meta: {
-        size: "auto",
+        size: {
+          width: 150,
+        },
       },
     }),
     columnHelper.display({
