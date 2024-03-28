@@ -48,9 +48,9 @@ export const getAccountsByUserId = async (userId: number) => {
   return accounts;
 };
 
-export const getAccountsByInstitutionId = async (institution_id: string) => {
+export const getAccountsByInstitutionId = async (institution_id: string, userId: number) => {
   const accounts = await prisma.account.findMany({
-    where: { institution_id },
+    where: { institution_id, userId },
   });
 
   return accounts;

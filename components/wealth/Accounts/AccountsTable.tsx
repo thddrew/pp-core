@@ -8,19 +8,24 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getInstitutionByInstId, updateInstitution } from "@/lib/prisma/queries/institutions";
-import { scheduleDailySyncTransactionsJob, startSyncTransactionsJob } from "@/lib/qstash/transactions";
+import {
+  removeScheduledSyncJob,
+  scheduleDailySyncTransactionsJob,
+  startSyncTransactionsJob,
+} from "@/lib/qstash/sync";
 import { SearchParams } from "@/lib/types/SearchParams";
 import { AccountType } from "@/lib/types/prisma";
 import { cn } from "@/lib/utils";
-import { useQueryClient } from "@tanstack/react-query";
 import { createColumnHelper, useReactTable, getCoreRowModel, flexRender, Row } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { MoreVerticalIcon, RefreshCcwIcon, TrashIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { HTMLProps, useRef } from "react";
 import { toast } from "sonner";
 
 import { getCellWidthStyles, getHeaderWidthStyles } from "../common/tables/cellSize";
 import { LastSyncedDate } from "./LastSyncDate";
+import { ScheduledSyncDate } from "./ScheduledSyncDate";
 
 type AccountTypeWithInst = AccountType & {
   institution_name: string;
@@ -39,7 +44,8 @@ const StyledTableCell = ({ className, ...props }: HTMLProps<HTMLDivElement>) => 
 export const AccountsTable = ({ accounts, userId }: AccountsTableProps) => {
   const tableContainer = useRef<HTMLTableElement>(null);
   const columnHelper = createColumnHelper<AccountTypeWithInst>();
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
+  const router = useRouter();
 
   const columns = [
     columnHelper.accessor("display_name", {
@@ -75,6 +81,7 @@ export const AccountsTable = ({ accounts, userId }: AccountsTableProps) => {
       cell: (row) => (
         <StyledTableCell className="justify-center">
           <LastSyncedDate instId={row.row.original.institution_id} userId={userId} />
+          <ScheduledSyncDate instId={row.row.original.institution_id} userId={userId} />
         </StyledTableCell>
       ),
       meta: {
@@ -128,6 +135,10 @@ export const AccountsTable = ({ accounts, userId }: AccountsTableProps) => {
                   fullSync: false,
                 });
 
+                if (inst.scheduled_sync_key) {
+                  await removeScheduledSyncJob(inst.scheduled_sync_key);
+                }
+
                 const scheduleSyncKey = await scheduleDailySyncTransactionsJob({
                   institutionId: instId,
                   userId,
@@ -136,10 +147,6 @@ export const AccountsTable = ({ accounts, userId }: AccountsTableProps) => {
                 await updateInstitution(inst.id, {
                   sync_job_key: syncJobKey,
                   scheduled_sync_key: scheduleSyncKey,
-                });
-
-                queryClient.invalidateQueries({
-                  queryKey: ["institution", instId, userId],
                 });
               }}>
               <div className="flex items-center gap-1">

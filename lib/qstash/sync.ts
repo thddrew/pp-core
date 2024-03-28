@@ -1,6 +1,5 @@
 "use server";
 
-import { updateInstitution } from "../prisma/queries/institutions";
 import { qstashClient } from "./client";
 
 export type SyncTransactionsJobOptions = {
@@ -64,4 +63,14 @@ export const scheduleDailySyncTransactionsJob = async (options: SyncTransactions
     ...options,
     cron: "0 0 * * *",
   });
+};
+
+export const getScheduledSyncDetails = async (scheduleKey: string) => {
+  const schedule = await qstashClient.schedules.get(scheduleKey);
+
+  return schedule;
+};
+
+export const removeScheduledSyncJob = async (scheduleKey: string) => {
+  return qstashClient.schedules.delete(scheduleKey);
 };

@@ -19,7 +19,7 @@ import {
   updateInstitution,
 } from "@/lib/prisma/queries/institutions";
 import { getCurrentUser, updateUser } from "@/lib/prisma/queries/users";
-import { scheduleDailySyncTransactionsJob, startSyncTransactionsJob } from "@/lib/qstash/transactions";
+import { scheduleDailySyncTransactionsJob, startSyncTransactionsJob } from "@/lib/qstash/sync";
 import { DollarSignIcon, Loader2Icon, PiggyBankIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Products } from "plaid";
@@ -76,7 +76,7 @@ export const OpenLinkButton = () => {
           syncJobKey = await startSyncTransactionsJob({
             institutionId,
             userId: user.id,
-            fullSync: false,
+            fullSync: true,
           });
 
           scheduledSyncKey = await scheduleDailySyncTransactionsJob({

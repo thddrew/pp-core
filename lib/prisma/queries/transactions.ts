@@ -25,8 +25,8 @@ export const getTransactionsByUserId = async (userId: number) => {
   return allTransactions.flatMap((transactions) => (transactions?.length ? transactions : []));
 };
 
-export const deleteAllTransactionsByInstId = async (institution_id: string) => {
-  const allAccounts = await getAccountsByInstitutionId(institution_id);
+export const deleteAllTransactionsByInstId = async (institution_id: string, userId: number) => {
+  const allAccounts = await getAccountsByInstitutionId(institution_id, userId);
 
   const allTransactions = await Promise.all(
     allAccounts.map(async (account) =>
@@ -38,14 +38,23 @@ export const deleteAllTransactionsByInstId = async (institution_id: string) => {
     (transactions) => transactions?.map((transaction) => transaction.transaction_id) ?? []
   );
 
-  await prisma.transaction.updateMany({
+  // TODO: soft delete
+  // await prisma.transaction.updateMany({
+  //   where: {
+  //     transaction_id: {
+  //       in: transactionIds,
+  //     },
+  //   },
+  //   data: {
+  //     deletedAt: new Date(),
+  //   },
+  // });
+
+  await prisma.transaction.deleteMany({
     where: {
       transaction_id: {
         in: transactionIds,
       },
-    },
-    data: {
-      deletedAt: new Date(),
     },
   });
 

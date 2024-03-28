@@ -9,7 +9,7 @@ import { LoaderIcon, InfoIcon } from "lucide-react";
 
 export const LastSyncedDate = ({ instId, userId }: { instId?: string | null; userId: number }) => {
   const { data: institution, isLoading } = useQuery({
-    queryKey: ["institution", instId, userId],
+    queryKey: ["institution", userId, instId],
     queryFn: () => {
       if (!instId) return;
 
@@ -42,7 +42,6 @@ export const LastSyncedDate = ({ instId, userId }: { instId?: string | null; use
           </TooltipPortal>
         </Tooltip>
       ) : null}
-      {institution?.scheduled_sync_key && <InfoIcon className="size-4" />}
     </div>
   );
 };

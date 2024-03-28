@@ -19,8 +19,7 @@ export const getAllTransactionsForUser = async (
   return [];
 };
 
-// TODO: background jobs queue system
-export const syncAllTransactionsByInst = async (inst: Institution, cursor?: string) => {
+export const syncAllTransactionsByInst = async (inst: Institution, userId: number, cursor?: string) => {
   console.log("Syncing transactions for institution", inst.id);
   if (!inst.access_token) {
     throw new Error(`Access token not found for institution ${inst.id}`);
@@ -31,7 +30,7 @@ export const syncAllTransactionsByInst = async (inst: Institution, cursor?: stri
 
   if (!cursor) {
     console.log("Deleting all transactions for institution", inst.id);
-    await deleteAllTransactionsByInstId(inst.institution_id);
+    await deleteAllTransactionsByInstId(inst.institution_id, userId);
   }
 
   while (hasMore) {
@@ -40,7 +39,7 @@ export const syncAllTransactionsByInst = async (inst: Institution, cursor?: stri
       cursor: nextCursor,
       count: 500,
       options: {
-        days_requested: 365,
+        days_requested: 730,
       },
     });
 
